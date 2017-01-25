@@ -23,28 +23,85 @@ namespace RejectRecognition
             Mat test2 = CvInvoke.Imread("test4.jpg");
 
             Mat result = new Mat();
+            Mat result1 = new Mat();
+            Mat result2 = new Mat();
+            //-------------------------Video----------------------------------//
+
+            VideoCapture VSource = new VideoCapture();
+            VSource.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.FrameCount, 60);
+
+            VSource.Start();
+            while (true)
+            {
+                VSource.Retrieve(test1, 1);
+                CvInvoke.Imshow("video", test1);
+                int c = CvInvoke.WaitKey(33);
+                if(c == 27)
+                {
+                    break;
+                }
+                else if(c == 13)
+                {
+                    test1.Save("capture.jpg");
+                }
+            }
+
+            CvInvoke.DestroyAllWindows();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            //----------------------------Photo-------------------------------------//
+
+
 
             // CvInvoke.Compare(test1, test2, result,Emgu.CV.CvEnum.CmpType.NotEqual);
 
-            CvInvoke.Canny(test1, CannyTest[0] , 10, 50);
-            CvInvoke.Canny(test2, CannyTest[1], 10, 50);
+            //CvInvoke.Canny(test1, CannyTest[0] , 10, 50);
+            //CvInvoke.Canny(test2, CannyTest[1], 10, 50);
 
-            CvInvoke.Split(test1, strg1);
-            CvInvoke.Split(test2, strg2);
+            //CvInvoke.CvtColor(test1, test1,Emgu.CV.CvEnum.ColorConversion.Bgr2Luv);
 
-            CvInvoke.Compare(strg1[0], strg2[0], result,Emgu.CV.CvEnum.CmpType.NotEqual);
-            CvInvoke.Subtract(result, strg2[0], result);
 
-            //CvInvoke.Subtract(result, strg1[0], result);
-            CvInvoke.Canny(result, CannyTest[2], 50, 150);
+            //CvInvoke.Split(test1, strg1);
+            //CvInvoke.Split(test2, strg2);
 
-            //CvInvoke.Imshow(Str1, test3);
-            //CvInvoke.Imshow("test2", test4);
-            CvInvoke.Imshow("canny", CannyTest[2]);
-            CvInvoke.Imshow(StrRes, result);
+            //CvInvoke.Compare(strg1[0], strg2[0], result,Emgu.CV.CvEnum.CmpType.NotEqual);
+            //CvInvoke.Subtract(result, strg2[0], result1);
+            //CvInvoke.Subtract(result, strg1[0], result2);
 
-            CvInvoke.WaitKey(0);  
-            CvInvoke.DestroyAllWindows();
+            //CvInvoke.Subtract(result2, result1, result);
+            //CvInvoke.Canny(result, CannyTest[2], 30, 50);
+
+            ////for(int i =0;i<3;i++)
+            ////{
+            ////    CvInvoke.Imshow(i.ToString(), array[i]);
+            ////}
+
+            ////CvInvoke.Imshow(Str1, test3);
+            ////CvInvoke.Imshow("test2", test4);
+            ////CvInvoke.Imshow("canny", CannyTest[2]);
+            ////CvInvoke.Imshow(StrRes, result);
+
+            //CvInvoke.WaitKey(0);  
+            //CvInvoke.DestroyAllWindows();
         }
     }
 }
