@@ -64,8 +64,7 @@ namespace RejectRecognition
                 CvInvoke.Compare(result[1].Split()[0], result[0].Split()[0], result[3], Emgu.CV.CvEnum.CmpType.NotEqual);
 
                 CvInvoke.Canny(result[3], result[4], 10, 10);
-
-                CvInvoke.Subtract(test2.Split()[0], test1.Split()[0], result[5]);
+                CvInvoke.Subtract(result[8], test1.Split()[0], result[5]);
 
                 CvInvoke.Canny(result[5], result[6], 25, 75);
 
