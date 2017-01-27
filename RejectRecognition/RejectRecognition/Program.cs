@@ -59,7 +59,15 @@ namespace RejectRecognition
                 CvInvoke.AbsDiff(result[0].Split()[0], result[1].Split()[0], result[2]);
                 CvInvoke.Canny(result[2], result[3],25,150);
 
+                MCvScalar scalar = CvInvoke.Sum(result[3]);
+                result[3].CopyTo(result[9]);
+                CvInvoke.PutText(result[9], (scalar.V0/255).ToString(), new System.Drawing.Point(100, 100), Emgu.CV.CvEnum.FontFace.HersheyPlain, 5, new MCvScalar(255, 255, 255));
+
+
+                CvInvoke.Imshow("pixels", result[9]);
                 CvInvoke.Imshow("video", result[3]);
+
+
                 int c = CvInvoke.WaitKey(33);
                 if(c == 27)
                 {

@@ -75,7 +75,7 @@ namespace RejectRecognGUI
 
             CvInvoke.AbsDiff(result[0].Split()[0], result[1].Split()[0], result[2]);
             CvInvoke.Canny(result[2], result[3], 25, 150);
-            CvInvoke.Sum(result[3]);
+            MCvScalar scalar =  CvInvoke.Sum(result[3]);
 
             if (showDifference)
             { 
