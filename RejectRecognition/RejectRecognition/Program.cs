@@ -39,7 +39,7 @@ namespace RejectRecognition
             VideoCapture VSource = new VideoCapture();
             VSource.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.Brightness, 150);
             VSource.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.Contrast, 34);
-            VSource.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.Fps, 30);
+            VSource.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.Fps, 15);
             VSource.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.Exposure, 50);
             VSource.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.Focus, 50);
             VSource.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.Gamma,50);
@@ -56,19 +56,10 @@ namespace RejectRecognition
                 CvInvoke.GaussianBlur(test2, result[1], GausianSize, 6);
                 CvInvoke.GaussianBlur(test1, result[0], GausianSize, 6);
 
+                CvInvoke.AbsDiff(result[0].Split()[0], result[1].Split()[0], result[2]);
+                CvInvoke.Canny(result[2], result[3],25,150);
 
-                CvInvoke.Compare(test1.Split()[0],test2.Split()[0], result[2], Emgu.CV.CvEnum.CmpType.NotEqual);
-
-
-
-                CvInvoke.Compare(result[1].Split()[0], result[0].Split()[0], result[3], Emgu.CV.CvEnum.CmpType.NotEqual);
-
-                CvInvoke.Canny(result[3], result[4], 10, 10);
-                CvInvoke.Subtract(result[8], test1.Split()[0], result[5]);
-
-                CvInvoke.Canny(result[5], result[6], 25, 75);
-
-                CvInvoke.Imshow("video", result[6]);
+                CvInvoke.Imshow("video", result[3]);
                 int c = CvInvoke.WaitKey(33);
                 if(c == 27)
                 {
