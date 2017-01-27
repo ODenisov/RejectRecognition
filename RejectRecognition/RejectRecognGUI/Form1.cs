@@ -22,12 +22,12 @@ namespace RejectRecognGUI
         private static VideoCapture _cameraCapture;
 
         private static Mat[] result = new Mat[10];
-        static Mat frame = _cameraCapture.QueryFrame();
-        static Mat frame2 = new Mat();
-        static Mat mask = new Mat();
-
-
+        private static Mat frame = _cameraCapture.QueryFrame();
+        private static Mat frame2 = new Mat();
+        private static Mat mask = new Mat();
         public static bool showDifference = false;
+
+
         public Form1()
         {
             InitializeComponent();
@@ -36,7 +36,6 @@ namespace RejectRecognGUI
 
         private void CameraMan()
         {
-
             try
             {
                 _cameraCapture = new VideoCapture();
@@ -51,8 +50,6 @@ namespace RejectRecognGUI
             _cameraCapture.SetCaptureProperty(CapProp.Fps, 15);
             _cameraCapture.SetCaptureProperty(CapProp.Exposure, 100);
             _cameraCapture.SetCaptureProperty(CapProp.Focus, 50);
-
-
 
             Application.Idle += Run;
         }

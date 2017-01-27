@@ -81,35 +81,6 @@ namespace RejectRecognition
 
             CvInvoke.DestroyAllWindows(); //конец тестирования видеопотока
 
-            //ВСЯКОЕ КЛАССНЫЕ ФУНКЦИИ
-
-            //CvInvoke.Compare(test1, test2, result, Emgu.CV.CvEnum.CmpType.NotEqual);
-
-            //CvInvoke.Canny(test1, CannyTest[0], 10, 50);
-            //CvInvoke.Canny(test2, CannyTest[1], 10, 50);
-
-            //CvInvoke.CvtColor(test1, test1, Emgu.CV.CvEnum.ColorConversion.Bgr2Luv);
-
-
-            //CvInvoke.Split(test1, strg1);
-            //CvInvoke.Split(test2, strg2);
-
-            //CvInvoke.Compare(strg1[0], strg2[0], result, Emgu.CV.CvEnum.CmpType.NotEqual);
-            //CvInvoke.Subtract(result, strg2[0], result1);
-            //CvInvoke.Subtract(result, strg1[0], result2);
-
-            //CvInvoke.Subtract(result2, result1, result);
-            //CvInvoke.Canny(result, CannyTest[2], 30, 50);
-
-            ////ПОКАЗЫВАЕМ ОКНА
-
-            //CvInvoke.Imshow("canny", CannyTest[2]);
-            //CvInvoke.Imshow(StrRes, result);
-
-            ////УБИРАЕМ ОКНА
-
-            //CvInvoke.WaitKey(0);
-            //CvInvoke.DestroyAllWindows();
         }
     }
 }
