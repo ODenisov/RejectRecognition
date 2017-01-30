@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Net;
+
 using Emgu.CV;
 using Emgu.CV.Structure;
 using Emgu.CV.Util;
@@ -12,60 +14,54 @@ namespace RejectRecognition
     {
         static void Main(string[] args)
         {
-            //тестовые переменные
-            VectorOfMat CannyTest = new VectorOfMat(5);
-            VectorOfMat strg1 = new VectorOfMat(3);
-            VectorOfMat strg2 = new VectorOfMat(3);
+            Mat CameraFeed = new Mat();
+            Mat Mask = new Mat();
+            System.Drawing.Size GausianSize = new System.Drawing.Size(3, 3);
 
-            string Str1 = "Image";
-            string StrRes = "Result";
-
-            Mat test1 = new Mat();
-            Mat test2 = new Mat();
-
-            test1 = CvInvoke.Imread("test3.jpg", Emgu.CV.CvEnum.ImreadModes.AnyDepth | Emgu.CV.CvEnum.ImreadModes.AnyColor);
-            test2 = CvInvoke.Imread("test4.jpg");
-
-            Mat[] result = new Mat[10];
+            //Reults
+            Mat[] ResPic = new Mat[10];
             for (int i = 0;i<10;i++)
             {
-                result[i] = new Mat();
+                ResPic[i] = new Mat();
+            }
+            //
+            //mask
+            Mask = CvInvoke.Imread("capture.jpg");
+            CvInvoke.GaussianBlur(Mask, Mask, GausianSize, 1);
+            //
+
+            VideoCapture[] VSource = new VideoCapture[10];
+            for ( int i = 0; i < 10 ; i++)
+            {
+                try
+                {
+                    VSource[i] = new VideoCapture(i);
+                }
+                catch
+                {
+                    break;
+                }
+            }
+            for (int i = 0; i < 10; i++)
+            {
+                SetProperties(VSource[i], 150, 15, 50);
+                VSource[i].Start();
             }
 
-            //конец тестовых переменных
 
 
-            //тестирование видеопотока
-            VideoCapture VSource = new VideoCapture();
-            VSource.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.Brightness, 150);
-            VSource.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.Contrast, 34);
-            VSource.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.Fps, 15);
-            VSource.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.Exposure, 50);
-            VSource.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.Focus, 50);
-            VSource.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.Gamma,50);
-
-            //VSource.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.Exposure,100);
-
-
-            System.Drawing.Size GausianSize = new System.Drawing.Size(3, 3);
-            VSource.Start();
             while (true)
             {
-                VSource.Retrieve(test1, 1);
-                test2 = CvInvoke.Imread("capture.jpg");
-                CvInvoke.GaussianBlur(test2, result[1], GausianSize, 6);
-                CvInvoke.GaussianBlur(test1, result[0], GausianSize, 6);
-
-                CvInvoke.AbsDiff(result[0].Split()[0], result[1].Split()[0], result[2]);
-                CvInvoke.Canny(result[2], result[3],25,150);
-
-                MCvScalar scalar = CvInvoke.Sum(result[3]);
-                result[3].CopyTo(result[9]);
-                CvInvoke.PutText(result[9], (scalar.V0/255).ToString(), new System.Drawing.Point(100, 100), Emgu.CV.CvEnum.FontFace.HersheyPlain, 5, new MCvScalar(255, 255, 255));
+                VSource[0].Retrieve(CameraFeed, 1);
+                ResPic[3] = PrepPic(Mask, CameraFeed);
+                MCvScalar scalar = CvInvoke.Sum(ResPic[3]);
+                ResPic[3].CopyTo(ResPic[9]);
+                ResPic[9].SetTo(new MCvScalar(0, 0, 0));
+                CvInvoke.PutText(ResPic[9], (scalar.V0 / 255).ToString(), new System.Drawing.Point(100, 100), Emgu.CV.CvEnum.FontFace.HersheyPlain, 5, new MCvScalar(255, 255, 255));
 
 
-                CvInvoke.Imshow("pixels", result[9]);
-                CvInvoke.Imshow("video", result[3]);
+                CvInvoke.Imshow("pixels", ResPic[9]);
+                CvInvoke.Imshow("video", ResPic[3]);
 
 
                 int c = CvInvoke.WaitKey(33);
@@ -75,12 +71,39 @@ namespace RejectRecognition
                 }
                 else if(c == 13)
                 {
-                    test1.Save("capture.jpg");
+                    CameraFeed.Save("capture.jpg");
+                    Mask = CvInvoke.Imread("capture.jpg");
+                    CvInvoke.GaussianBlur(Mask, Mask, GausianSize, 1);
                 }
             }
 
-            CvInvoke.DestroyAllWindows(); //конец тестирования видеопотока
+            CvInvoke.DestroyAllWindows(); //конец видеопотока
+        }//main
 
+        static void SetProperties(VideoCapture source,double brigth, double FPS, double exposure)
+        {
+            source.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.Brightness, brigth);
+            source.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.Fps, FPS);
+            source.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.Exposure, exposure);
+        }//SetProperties
+
+        static string BuildReport(int CamNum, int ErrorPerc, string Recomendation)
+        {
+            string Report = CamNum.ToString() + "-" + ErrorPerc.ToString() + "-" + Recomendation;
+            return Report;
+        }//BuildReport
+
+        static Mat PrepPic(Mat mask, Mat pic)
+        {
+            Mat temp = new Mat();
+            CvInvoke.GaussianBlur(pic, temp, new System.Drawing.Size(3,3), 1);
+
+            CvInvoke.AbsDiff(mask.Split()[0], temp.Split()[0], temp);
+            CvInvoke.Canny(temp, temp, 25, 150);
+
+            return temp;
         }
+
+
     }
 }
