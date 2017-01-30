@@ -52,16 +52,23 @@ namespace RejectRecognition
 
             while (true)
             {
-                VSource[0].Retrieve(CameraFeed, 1);
-                ResPic[3] = PrepPic(Mask, CameraFeed);
-                MCvScalar scalar = CvInvoke.Sum(ResPic[3]);
-                ResPic[3].CopyTo(ResPic[9]);
-                ResPic[9].SetTo(new MCvScalar(0, 0, 0));
-                CvInvoke.PutText(ResPic[9], (scalar.V0 / 255).ToString(), new System.Drawing.Point(100, 100), Emgu.CV.CvEnum.FontFace.HersheyPlain, 5, new MCvScalar(255, 255, 255));
+                for (int i = 0; i<10; i++)
+                {
+                    VSource[i].Retrieve(ResPic[i]);
+                    if(ResPic[i].Height>0)
+                    CvInvoke.Imshow(i.ToString(), ResPic[i]);
+                }
+                //ResPic[3] = PrepPic(Mask, CameraFeed);
+
+                //MCvScalar scalar = CvInvoke.Sum(ResPic[3]);
+                //ResPic[3].CopyTo(ResPic[9]);
+                //ResPic[9].SetTo(new MCvScalar(0, 0, 0));
+                //CvInvoke.PutText(ResPic[9], (scalar.V0 / 255).ToString(), new System.Drawing.Point(100, 100), Emgu.CV.CvEnum.FontFace.HersheyPlain, 5, new MCvScalar(255, 255, 255));
 
 
-                CvInvoke.Imshow("pixels", ResPic[9]);
-                CvInvoke.Imshow("video", ResPic[3]);
+                //CvInvoke.Imshow("pixels", ResPic[9]);
+                //CvInvoke.Imshow("video", ResPic[3]);
+
 
 
                 int c = CvInvoke.WaitKey(33);
@@ -103,6 +110,11 @@ namespace RejectRecognition
 
             return temp;
         }
+
+        //static Mat CountDiff(Mat pic)
+        //{
+        //    MCvScalar scalar = CvInvoke.Sum(pic); 
+        //}
 
 
     }
