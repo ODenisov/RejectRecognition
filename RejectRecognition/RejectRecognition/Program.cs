@@ -67,8 +67,8 @@ namespace RejectRecognition
                 for ( i = 0; i<10; i++)
                 {
                     VSource[i].Retrieve(ResPic[i]);
-                    if(ResPic[i].Height>0)
-                    CvInvoke.Imshow(i.ToString(),ResPic[i]);
+                    if(!ResPic[i].IsEmpty)
+                    CvInvoke.Imshow(i.ToString(),PrepPic(Masks[i], ResPic[i]));
                 }
 
                 int c = CvInvoke.WaitKey(33);
