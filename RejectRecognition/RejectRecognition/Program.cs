@@ -15,23 +15,35 @@ namespace RejectRecognition
         static void Main(string[] args)
         {
             Mat CameraFeed = new Mat();
-            Mat Mask = new Mat();
+            Mat[] Masks = new Mat[10];
+            int i = 0;
             System.Drawing.Size GausianSize = new System.Drawing.Size(3, 3);
 
             //Reults
             Mat[] ResPic = new Mat[10];
-            for (int i = 0;i<10;i++)
+            for ( i = 0;i<10;i++)
             {
                 ResPic[i] = new Mat();
             }
             //
+
             //mask
-            Mask = CvInvoke.Imread("capture.jpg");
-            CvInvoke.GaussianBlur(Mask, Mask, GausianSize, 1);
+            for (i = 0; i < 10; i++)
+            {
+                try
+                {
+                    Masks[i] = CvInvoke.Imread("capture"+i.ToString()+".jpg");
+                }
+                catch
+                {
+                    continue;
+                }
+                CvInvoke.GaussianBlur(Masks[i], Masks[i], GausianSize, 1);
+            }
             //
 
             VideoCapture[] VSource = new VideoCapture[10];
-            for ( int i = 0; i < 10 ; i++)
+            for (  i = 0; i < 10 ; i++)
             {
                 try
                 {
@@ -42,7 +54,7 @@ namespace RejectRecognition
                     break;
                 }
             }
-            for (int i = 0; i < 10; i++)
+            for ( i = 0; i < 10; i++)
             {
                 SetProperties(VSource[i], 150, 15, 50);
                 VSource[i].Start();
@@ -52,36 +64,39 @@ namespace RejectRecognition
 
             while (true)
             {
-                for (int i = 0; i<10; i++)
+                for ( i = 0; i<10; i++)
                 {
                     VSource[i].Retrieve(ResPic[i]);
                     if(ResPic[i].Height>0)
-                    CvInvoke.Imshow(i.ToString(), ResPic[i]);
+                    CvInvoke.Imshow(i.ToString(),ResPic[i]);
                 }
-                //ResPic[3] = PrepPic(Mask, CameraFeed);
-
-                //MCvScalar scalar = CvInvoke.Sum(ResPic[3]);
-                //ResPic[3].CopyTo(ResPic[9]);
-                //ResPic[9].SetTo(new MCvScalar(0, 0, 0));
-                //CvInvoke.PutText(ResPic[9], (scalar.V0 / 255).ToString(), new System.Drawing.Point(100, 100), Emgu.CV.CvEnum.FontFace.HersheyPlain, 5, new MCvScalar(255, 255, 255));
-
-
-                //CvInvoke.Imshow("pixels", ResPic[9]);
-                //CvInvoke.Imshow("video", ResPic[3]);
-
-
 
                 int c = CvInvoke.WaitKey(33);
+
                 if(c == 27)
                 {
                     break;
                 }
                 else if(c == 13)
                 {
-                    CameraFeed.Save("capture.jpg");
-                    Mask = CvInvoke.Imread("capture.jpg");
-                    CvInvoke.GaussianBlur(Mask, Mask, GausianSize, 1);
-                }
+                    for ( i = 0; i < 10; i++)
+                    {
+                        if (!ResPic[i].IsEmpty)
+                        {
+                            ResPic[i].Save("capture" + i.ToString() + ".jpg");
+                            Masks[i] = CvInvoke.Imread("capture" + i.ToString() + ".jpg");
+                            CvInvoke.GaussianBlur(Masks[i], Masks[i], GausianSize, 1);
+                        }//fi
+                    }//for
+                }//else fi
+                else if(c == 32)
+                {
+                    for (i = 0; i < 10; i++)
+                        if (ResPic[i].Height > 0)
+                        {
+                            Console.WriteLine(i.ToString() + " = " + CountDiff(PrepPic(Masks[i], ResPic[i])).ToString());
+                        }//fi
+                }//wlse fi
             }
 
             CvInvoke.DestroyAllWindows(); //конец видеопотока
@@ -105,16 +120,20 @@ namespace RejectRecognition
             Mat temp = new Mat();
             CvInvoke.GaussianBlur(pic, temp, new System.Drawing.Size(3,3), 1);
 
-            CvInvoke.AbsDiff(mask.Split()[0], temp.Split()[0], temp);
-            CvInvoke.Canny(temp, temp, 25, 150);
+            if (mask.Height == temp.Height)
+            {
+                CvInvoke.AbsDiff(mask.Split()[0], temp.Split()[0], temp);
+                CvInvoke.Canny(temp, temp, 25, 150);
+            }
 
             return temp;
         }
 
-        //static Mat CountDiff(Mat pic)
-        //{
-        //    MCvScalar scalar = CvInvoke.Sum(pic); 
-        //}
+        static double CountDiff(Mat pic)
+        {
+            MCvScalar scalar = CvInvoke.Sum(pic);
+            return scalar.V0 / 25500;
+        }
 
 
     }
