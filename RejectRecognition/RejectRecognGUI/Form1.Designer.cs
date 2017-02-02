@@ -28,19 +28,25 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.cameraFeed1 = new Emgu.CV.UI.ImageBox();
-            this.cameraFeed2 = new Emgu.CV.UI.ImageBox();
             this.snapshot1 = new System.Windows.Forms.Button();
-            this.snapshot2 = new System.Windows.Forms.Button();
-            this.buttonDetect = new System.Windows.Forms.Button();
-            this.colourBox = new System.Windows.Forms.PictureBox();
-            this.onoffText = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+            this.LabelBrightness = new System.Windows.Forms.Label();
+            this.LabelFPS = new System.Windows.Forms.Label();
+            this.LabelContrast = new System.Windows.Forms.Label();
+            this.numericContrast = new System.Windows.Forms.NumericUpDown();
+            this.numericBrightness = new System.Windows.Forms.NumericUpDown();
+            this.numericFPS = new System.Windows.Forms.NumericUpDown();
+            this.LabelExposure = new System.Windows.Forms.Label();
+            this.numericExposure = new System.Windows.Forms.NumericUpDown();
+            this.comboCameras = new System.Windows.Forms.ComboBox();
+            this.buttonSave = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.cameraFeed1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.cameraFeed2)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.colourBox)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericContrast)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericBrightness)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericFPS)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericExposure)).BeginInit();
             this.SuspendLayout();
             // 
             // cameraFeed1
@@ -50,14 +56,6 @@
             this.cameraFeed1.Size = new System.Drawing.Size(425, 260);
             this.cameraFeed1.TabIndex = 0;
             this.cameraFeed1.TabStop = false;
-            // 
-            // cameraFeed2
-            // 
-            this.cameraFeed2.Location = new System.Drawing.Point(447, 12);
-            this.cameraFeed2.Name = "cameraFeed2";
-            this.cameraFeed2.Size = new System.Drawing.Size(425, 260);
-            this.cameraFeed2.TabIndex = 1;
-            this.cameraFeed2.TabStop = false;
             // 
             // snapshot1
             // 
@@ -69,81 +67,156 @@
             this.snapshot1.UseVisualStyleBackColor = true;
             this.snapshot1.Click += new System.EventHandler(this.snapshot1_Click);
             // 
-            // snapshot2
+            // LabelBrightness
             // 
-            this.snapshot2.Location = new System.Drawing.Point(447, 278);
-            this.snapshot2.Name = "snapshot2";
-            this.snapshot2.Size = new System.Drawing.Size(75, 23);
-            this.snapshot2.TabIndex = 3;
-            this.snapshot2.Text = "Snapshot";
-            this.snapshot2.UseVisualStyleBackColor = true;
-            this.snapshot2.Click += new System.EventHandler(this.snapshot2_Click);
+            this.LabelBrightness.AutoSize = true;
+            this.LabelBrightness.Location = new System.Drawing.Point(169, 325);
+            this.LabelBrightness.Name = "LabelBrightness";
+            this.LabelBrightness.Size = new System.Drawing.Size(56, 13);
+            this.LabelBrightness.TabIndex = 4;
+            this.LabelBrightness.Text = "Brightness";
             // 
-            // buttonDetect
+            // LabelFPS
             // 
-            this.buttonDetect.Location = new System.Drawing.Point(12, 329);
-            this.buttonDetect.Name = "buttonDetect";
-            this.buttonDetect.Size = new System.Drawing.Size(75, 23);
-            this.buttonDetect.TabIndex = 4;
-            this.buttonDetect.Text = "Различия";
-            this.buttonDetect.UseVisualStyleBackColor = true;
-            this.buttonDetect.Click += new System.EventHandler(this.buttonDetect_Click);
+            this.LabelFPS.AutoSize = true;
+            this.LabelFPS.Location = new System.Drawing.Point(198, 351);
+            this.LabelFPS.Name = "LabelFPS";
+            this.LabelFPS.Size = new System.Drawing.Size(27, 13);
+            this.LabelFPS.TabIndex = 4;
+            this.LabelFPS.Text = "FPS";
             // 
-            // colourBox
+            // LabelContrast
             // 
-            this.colourBox.BackColor = System.Drawing.Color.Yellow;
-            this.colourBox.Location = new System.Drawing.Point(107, 329);
-            this.colourBox.Name = "colourBox";
-            this.colourBox.Size = new System.Drawing.Size(23, 22);
-            this.colourBox.TabIndex = 5;
-            this.colourBox.TabStop = false;
+            this.LabelContrast.AutoSize = true;
+            this.LabelContrast.Location = new System.Drawing.Point(179, 377);
+            this.LabelContrast.Name = "LabelContrast";
+            this.LabelContrast.Size = new System.Drawing.Size(46, 13);
+            this.LabelContrast.TabIndex = 4;
+            this.LabelContrast.Text = "Contrast";
             // 
-            // onoffText
+            // numericContrast
             // 
-            this.onoffText.AutoSize = true;
-            this.onoffText.Location = new System.Drawing.Point(137, 335);
-            this.onoffText.Name = "onoffText";
-            this.onoffText.Size = new System.Drawing.Size(37, 13);
-            this.onoffText.TabIndex = 7;
-            this.onoffText.Text = "Выкл.";
+            this.numericContrast.Location = new System.Drawing.Point(229, 375);
+            this.numericContrast.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.numericContrast.Minimum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            -2147483648});
+            this.numericContrast.Name = "numericContrast";
+            this.numericContrast.Size = new System.Drawing.Size(55, 20);
+            this.numericContrast.TabIndex = 5;
+            this.numericContrast.ValueChanged += new System.EventHandler(this.numericContrast_ValueChanged);
             // 
-            // label2
+            // numericBrightness
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(402, 275);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(21, 13);
-            this.label2.TabIndex = 8;
-            this.label2.Text = "0%";
+            this.numericBrightness.Location = new System.Drawing.Point(229, 323);
+            this.numericBrightness.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.numericBrightness.Minimum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            -2147483648});
+            this.numericBrightness.Name = "numericBrightness";
+            this.numericBrightness.Size = new System.Drawing.Size(55, 20);
+            this.numericBrightness.TabIndex = 5;
+            this.numericBrightness.ValueChanged += new System.EventHandler(this.numericBrightness_ValueChanged);
             // 
-            // label3
+            // numericFPS
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(851, 278);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(21, 13);
-            this.label3.TabIndex = 9;
-            this.label3.Text = "0%";
+            this.numericFPS.Location = new System.Drawing.Point(229, 349);
+            this.numericFPS.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.numericFPS.Minimum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            -2147483648});
+            this.numericFPS.Name = "numericFPS";
+            this.numericFPS.Size = new System.Drawing.Size(55, 20);
+            this.numericFPS.TabIndex = 5;
+            this.numericFPS.ValueChanged += new System.EventHandler(this.numericFPS_ValueChanged);
+            // 
+            // LabelExposure
+            // 
+            this.LabelExposure.AutoSize = true;
+            this.LabelExposure.Location = new System.Drawing.Point(179, 403);
+            this.LabelExposure.Name = "LabelExposure";
+            this.LabelExposure.Size = new System.Drawing.Size(51, 13);
+            this.LabelExposure.TabIndex = 4;
+            this.LabelExposure.Text = "Exposure";
+            // 
+            // numericExposure
+            // 
+            this.numericExposure.Location = new System.Drawing.Point(229, 401);
+            this.numericExposure.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.numericExposure.Minimum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            -2147483648});
+            this.numericExposure.Name = "numericExposure";
+            this.numericExposure.Size = new System.Drawing.Size(55, 20);
+            this.numericExposure.TabIndex = 5;
+            this.numericExposure.ValueChanged += new System.EventHandler(this.numericExposure_ValueChanged);
+            // 
+            // comboCameras
+            // 
+            this.comboCameras.FormattingEnabled = true;
+            this.comboCameras.Location = new System.Drawing.Point(304, 280);
+            this.comboCameras.Name = "comboCameras";
+            this.comboCameras.Size = new System.Drawing.Size(121, 21);
+            this.comboCameras.TabIndex = 6;
+            // 
+            // buttonSave
+            // 
+            this.buttonSave.Location = new System.Drawing.Point(182, 451);
+            this.buttonSave.Name = "buttonSave";
+            this.buttonSave.Size = new System.Drawing.Size(98, 23);
+            this.buttonSave.TabIndex = 7;
+            this.buttonSave.Text = "Save";
+            this.buttonSave.UseVisualStyleBackColor = true;
+            this.buttonSave.Click += new System.EventHandler(this.buttonSave_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(884, 390);
-            this.Controls.Add(this.label3);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.onoffText);
-            this.Controls.Add(this.colourBox);
-            this.Controls.Add(this.buttonDetect);
-            this.Controls.Add(this.snapshot2);
+            this.ClientSize = new System.Drawing.Size(448, 486);
+            this.Controls.Add(this.buttonSave);
+            this.Controls.Add(this.comboCameras);
+            this.Controls.Add(this.numericBrightness);
+            this.Controls.Add(this.numericFPS);
+            this.Controls.Add(this.numericExposure);
+            this.Controls.Add(this.LabelExposure);
+            this.Controls.Add(this.numericContrast);
+            this.Controls.Add(this.LabelContrast);
+            this.Controls.Add(this.LabelFPS);
+            this.Controls.Add(this.LabelBrightness);
             this.Controls.Add(this.snapshot1);
-            this.Controls.Add(this.cameraFeed2);
             this.Controls.Add(this.cameraFeed1);
             this.Name = "Form1";
             this.Text = "ХЛЪБ";
             ((System.ComponentModel.ISupportInitialize)(this.cameraFeed1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.cameraFeed2)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.colourBox)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericContrast)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericBrightness)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericFPS)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericExposure)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -152,15 +225,18 @@
         #endregion
 
         private Emgu.CV.UI.ImageBox cameraFeed1;
-        private Emgu.CV.UI.ImageBox cameraFeed2;
         private System.Windows.Forms.Button snapshot1;
-        private System.Windows.Forms.Button snapshot2;
-        private System.Windows.Forms.Button buttonDetect;
-        private System.Windows.Forms.PictureBox colourBox;
-        private System.Windows.Forms.Label onoffText;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label label3;
         private System.ComponentModel.BackgroundWorker backgroundWorker1;
+        private System.Windows.Forms.Label LabelBrightness;
+        private System.Windows.Forms.Label LabelFPS;
+        private System.Windows.Forms.Label LabelContrast;
+        private System.Windows.Forms.NumericUpDown numericContrast;
+        private System.Windows.Forms.NumericUpDown numericBrightness;
+        private System.Windows.Forms.NumericUpDown numericFPS;
+        private System.Windows.Forms.Label LabelExposure;
+        private System.Windows.Forms.NumericUpDown numericExposure;
+        private System.Windows.Forms.ComboBox comboCameras;
+        private System.Windows.Forms.Button buttonSave;
     }
 }
 
