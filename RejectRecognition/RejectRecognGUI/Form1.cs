@@ -19,9 +19,8 @@ namespace RejectRecognGUI
 {
     public partial class Form1 : Form
     {
-        public static VideoCapture _cameraCapture;
         public static VideoCapture[] _cameras = new VideoCapture[10];
-
+        public static int current_camera = 0;
         public static Mat[] result = new Mat[10];
         public static Mat Frame = new Mat();
         public static Mat Frame1 = new Mat();
@@ -37,16 +36,6 @@ namespace RejectRecognGUI
         private void CameraMan()
         {
             //
-            try
-            {
-                _cameraCapture = new VideoCapture();
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show(e.Message);
-                return;
-            }
-            //
             for (int i = 0; i < 10; i++)
             {
                 result[i] = new Mat();
@@ -58,26 +47,19 @@ namespace RejectRecognGUI
                 }
             }
             comboCameras.SelectedIndex = 0;
-            _cameraCapture = _cameras[0];
-            
+            current_camera = comboCameras.SelectedIndex;
             refProps();
 
-           // Mask = CvInvoke.Imread("capture.jpg");
-            //CvInvoke.GaussianBlur(Mask, Mask, new Size(3, 3), 1);
-
-           // Frame = _cameraCapture.QueryFrame();
+            Mask = CvInvoke.Imread("capture" + current_camera.ToString() + ".jpg");
+            CvInvoke.GaussianBlur(Mask, Mask, new Size(3, 3), 1);
             Application.Idle += Run;
 
         }
         void Run(object sender, EventArgs e)
         {
-            if (_cameraCapture.QueryFrame().IsEmpty)
-                _cameraCapture.Start();
-            _cameraCapture.Retrieve(Frame);
-            cameraFeed1.Image = PrepPic(Mask, Frame);
-            
-            //if(!Frame1.IsEmpty)
-            //cameraFeed1.Image = Frame1;
+
+            Frame = _cameras[current_camera].QueryFrame();
+            cameraFeed1.Image = Frame;
         }
 
         static Mat PrepPic(Mat mask, Mat pic)
@@ -96,50 +78,50 @@ namespace RejectRecognGUI
 
         private void refProps()
         {
-            numericBrightness.Value = Convert.ToDecimal(_cameraCapture.GetCaptureProperty(CapProp.Brightness));
-            numericContrast.Value = Convert.ToDecimal(_cameraCapture.GetCaptureProperty(CapProp.Contrast));
-            numericExposure.Value = Convert.ToDecimal(_cameraCapture.GetCaptureProperty(CapProp.Exposure));
-            numericFPS.Value = Convert.ToDecimal(_cameraCapture.GetCaptureProperty(CapProp.Fps));
+            numericBrightness.Value = Convert.ToDecimal(_cameras[current_camera].GetCaptureProperty(CapProp.Brightness));
+            numericContrast.Value = Convert.ToDecimal(_cameras[current_camera].GetCaptureProperty(CapProp.Contrast));
+            numericExposure.Value = Convert.ToDecimal(_cameras[current_camera].GetCaptureProperty(CapProp.Exposure));
+            numericFPS.Value = Convert.ToDecimal(_cameras[current_camera].GetCaptureProperty(CapProp.Fps));
         }
 
         private void numericBrightness_ValueChanged(object sender, EventArgs e)
         {
-            _cameraCapture.SetCaptureProperty(CapProp.Brightness, Convert.ToDouble(numericBrightness.Value));
+            _cameras[current_camera].SetCaptureProperty(CapProp.Brightness, Convert.ToDouble(numericBrightness.Value));
         }
 
         private void numericFPS_ValueChanged(object sender, EventArgs e)
         {
-            _cameraCapture.SetCaptureProperty(CapProp.Fps, Convert.ToDouble(numericFPS.Value));
+            _cameras[current_camera].SetCaptureProperty(CapProp.Fps, Convert.ToDouble(numericFPS.Value));
         }
 
         private void numericContrast_ValueChanged(object sender, EventArgs e)
         {
-            _cameraCapture.SetCaptureProperty(CapProp.Contrast, Convert.ToDouble(numericContrast.Value));
+            _cameras[current_camera].SetCaptureProperty(CapProp.Contrast, Convert.ToDouble(numericContrast.Value));
         }
 
         private void numericExposure_ValueChanged(object sender, EventArgs e)
         {
-            _cameraCapture.SetCaptureProperty(CapProp.Exposure, Convert.ToDouble(numericExposure.Value));
+            _cameras[current_camera].SetCaptureProperty(CapProp.Exposure, Convert.ToDouble(numericExposure.Value));
         }
 
         private void buttonSave_Click(object sender, EventArgs e)
         {
-            StreamWriter sw = new StreamWriter("Settings_Camera_" + comboCameras.SelectedIndex.ToString());
+            StreamWriter sw = new StreamWriter("Settings_Camera_" + comboCameras.SelectedIndex.ToString()+".txt");
             string text = "";
             text += "---Camera " + comboCameras.SelectedIndex.ToString() + "---";
-            text += "\nBrigtness " + _cameraCapture.GetCaptureProperty(CapProp.Brightness).ToString();
-            text += "\nContrast " + _cameraCapture.GetCaptureProperty(CapProp.Contrast).ToString();
-            text += "\nExposure " + _cameraCapture.GetCaptureProperty(CapProp.Exposure).ToString();
-            text += "\nFPS " + _cameraCapture.GetCaptureProperty(CapProp.Fps).ToString();
-
+            text += "\nBrigtness " + _cameras[current_camera].GetCaptureProperty(CapProp.Brightness).ToString();
+            text += "\nContrast " + _cameras[current_camera].GetCaptureProperty(CapProp.Contrast).ToString();
+            text += "\nExposure " + _cameras[current_camera].GetCaptureProperty(CapProp.Exposure).ToString();
+            text += "\nFPS " + _cameras[current_camera].GetCaptureProperty(CapProp.Fps).ToString();
+            sw.WriteLine(text);
             sw.Close();
             sw.Dispose();
         }
 
         private void snapshot1_Click(object sender, EventArgs e)
         {
-            Frame.Save("capture.jpg");
-            Mask = CvInvoke.Imread("capture.jpg");
+            Frame.Save("capture"+current_camera.ToString()+".jpg");
+            Mask = CvInvoke.Imread("capture" + current_camera.ToString() + ".jpg");
             CvInvoke.GaussianBlur(Mask, result[0], new Size(3, 3), 1);
         }
 
