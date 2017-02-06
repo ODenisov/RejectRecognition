@@ -125,5 +125,9 @@ namespace RejectRecognGUI
             CvInvoke.GaussianBlur(Mask, result[0], new Size(3, 3), 1);
         }
 
+        private void comboCameras_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            current_camera = comboCameras.SelectedIndex;
+        }
     }
 }

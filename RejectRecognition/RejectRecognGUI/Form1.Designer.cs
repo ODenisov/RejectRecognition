@@ -182,6 +182,7 @@
             this.comboCameras.Name = "comboCameras";
             this.comboCameras.Size = new System.Drawing.Size(121, 21);
             this.comboCameras.TabIndex = 6;
+            this.comboCameras.SelectedIndexChanged += new System.EventHandler(this.comboCameras_SelectedIndexChanged);
             // 
             // buttonSave
             // 

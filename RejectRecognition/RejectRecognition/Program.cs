@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Net;
+using System.IO;
 
 using Emgu.CV;
 using Emgu.CV.Structure;
@@ -21,7 +22,7 @@ namespace RejectRecognition
 
             //Reults
             Mat[] ResPic = new Mat[10];
-            for ( i = 0;i<10;i++)
+            for (i = 0; i < 10; i++)
             {
                 ResPic[i] = new Mat();
             }
@@ -32,7 +33,7 @@ namespace RejectRecognition
             {
                 try
                 {
-                    Masks[i] = CvInvoke.Imread("capture"+i.ToString()+".jpg");
+                    Masks[i] = CvInvoke.Imread("capture" + i.ToString() + ".jpg");
                 }
                 catch
                 {
@@ -43,7 +44,7 @@ namespace RejectRecognition
             //
 
             VideoCapture[] VSource = new VideoCapture[10];
-            for (  i = 0; i < 10 ; i++)
+            for (i = 0; i < 10; i++)
             {
                 try
                 {
@@ -54,32 +55,34 @@ namespace RejectRecognition
                     break;
                 }
             }
-            for ( i = 0; i < 10; i++)
-            {
-                SetProperties(VSource[i], 150, 15, 50);
-                VSource[i].Start();
-            }
 
+            OpenSettings(VSource);
+
+            //for (i = 0; i < 10; i++)
+            //{
+            //    SetProperties(VSource[i], 150, 15, 5, 29);
+            //    VSource[i].Start();
+            //}
 
 
             while (true)
             {
-                for ( i = 0; i<10; i++)
+                for (i = 0; i < 10; i++)
                 {
                     VSource[i].Retrieve(ResPic[i]);
-                    if(!ResPic[i].IsEmpty)
-                    CvInvoke.Imshow(i.ToString(),PrepPic(Masks[i], ResPic[i]));
+                    if (!ResPic[i].IsEmpty)
+                        CvInvoke.Imshow(i.ToString(), PrepPic(Masks[i], ResPic[i]));
                 }
 
                 int c = CvInvoke.WaitKey(33);
 
-                if(c == 27)
+                if (c == 27)
                 {
                     break;
                 }
-                else if(c == 13)
+                else if (c == 13)
                 {
-                    for ( i = 0; i < 10; i++)
+                    for (i = 0; i < 10; i++)
                     {
                         if (!ResPic[i].IsEmpty)
                         {
@@ -89,24 +92,25 @@ namespace RejectRecognition
                         }//fi
                     }//for
                 }//else fi
-                else if(c == 32)
+                else if (c == 32)
                 {
                     for (i = 0; i < 10; i++)
                         if (ResPic[i].Height > 0)
                         {
                             Console.WriteLine(i.ToString() + " = " + CountDiff(PrepPic(Masks[i], ResPic[i])).ToString());
                         }//fi
-                }//wlse fi
+                }//else fi
             }
 
             CvInvoke.DestroyAllWindows(); //конец видеопотока
         }//main
 
-        static void SetProperties(VideoCapture source,double brigth, double FPS, double exposure)
+        static void SetProperties(VideoCapture source, double brigth, double FPS, double exposure,double contrast)
         {
             source.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.Brightness, brigth);
             source.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.Fps, FPS);
             source.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.Exposure, exposure);
+            source.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.Contrast, contrast);
         }//SetProperties
 
         static string BuildReport(int CamNum, int ErrorPerc, string Recomendation)
@@ -118,7 +122,7 @@ namespace RejectRecognition
         static Mat PrepPic(Mat mask, Mat pic)
         {
             Mat temp = new Mat();
-            CvInvoke.GaussianBlur(pic, temp, new System.Drawing.Size(3,3), 1);
+            CvInvoke.GaussianBlur(pic, temp, new System.Drawing.Size(3, 3), 1);
 
             if (mask.Height == temp.Height)
             {
@@ -127,12 +131,39 @@ namespace RejectRecognition
             }
 
             return temp;
-        }
+        }//PrepPic
 
         static double CountDiff(Mat pic)
         {
             MCvScalar scalar = CvInvoke.Sum(pic);
             return scalar.V0 / 25500;
+        }//CountDiff
+
+        static void OpenSettings(VideoCapture[] Videos)
+        {
+            StreamReader sr;
+            for (int cameraNum = 0; cameraNum < 10; cameraNum++)
+            {
+                try
+                {
+                    sr = new StreamReader("Settings_Camera_" + cameraNum.ToString() + ".txt");
+                }catch
+                {
+                    continue;
+                }
+                sr.ReadLine();
+                string Brightness = sr.ReadLine();
+                string Contrast = sr.ReadLine();
+                string Exposure = sr.ReadLine();
+                string Fps = sr.ReadLine();
+                double bright = Convert.ToDouble(Brightness.Split(' ')[1]);
+                double contrast = Convert.ToDouble(Contrast.Split(' ')[1]);
+                double expos = Convert.ToDouble(Exposure.Split(' ')[1]);
+                double fraps = Convert.ToDouble(Fps.Split(' ')[1]);
+                SetProperties(Videos[cameraNum], bright, contrast, expos, fraps);
+                sr.Close();
+                sr.Dispose();
+            }
         }
 
 
