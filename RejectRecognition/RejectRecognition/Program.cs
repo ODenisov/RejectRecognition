@@ -164,8 +164,7 @@ namespace RejectRecognition
                 sr.Close();
                 sr.Dispose();
             }
-        }
-
+        }//OpenSettings
 
     }
 }
