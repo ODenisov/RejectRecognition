@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Net;
+using System.Net.Sockets;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 using Emgu.CV;
 using Emgu.CV.Structure;
@@ -13,6 +16,12 @@ namespace RejectRecognition
 {
     class Program
     {
+        private static async void StartListener()
+        {
+            var Sniffer = TcpListener.Create(8888);
+            Sniffer.Start();
+            
+        }
         static void Main(string[] args)
         {
             Mat CameraFeed = new Mat();
