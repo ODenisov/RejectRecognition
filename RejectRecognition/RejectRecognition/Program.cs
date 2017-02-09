@@ -16,12 +16,9 @@ namespace RejectRecognition
 {
     class Program
     {
-        private static async void StartListener()
-        {
-            var Sniffer = TcpListener.Create(8888);
-            Sniffer.Start();
-            
-        }
+        //private static async void StartListener()
+        //{            
+        //}
         static void Main(string[] args)
         {
             Mat CameraFeed = new Mat();
@@ -67,13 +64,6 @@ namespace RejectRecognition
 
             OpenSettings(VSource);
 
-            //for (i = 0; i < 10; i++)
-            //{
-            //    SetProperties(VSource[i], 150, 15, 5, 29);
-            //    VSource[i].Start();
-            //}
-
-
             while (true)
             {
                 for (i = 0; i < 10; i++)
@@ -106,7 +96,7 @@ namespace RejectRecognition
                     for (i = 0; i < 10; i++)
                         if (ResPic[i].Height > 0)
                         {
-                            Console.WriteLine(i.ToString() + " = " + CountDiff(PrepPic(Masks[i], ResPic[i])).ToString());
+                            Console.WriteLine(BuildReport(i, CountDiff(PrepPic(Masks[i], ResPic[i]))));
                         }//fi
                 }//else fi
             }
@@ -122,14 +112,17 @@ namespace RejectRecognition
             source.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.Contrast, contrast);
         }//SetProperties
 
-        static string BuildReport(int CamNum, int ErrorPerc, string Recomendation)
+        static string BuildReport(int CamNum, double ErrorPerc)
         {
-            string Report = CamNum.ToString() + "-" + ErrorPerc.ToString() + "-" + Recomendation;
+            string Report = "id: " + CamNum.ToString() + " ; disparity: " + ErrorPerc.ToString();
             return Report;
         }//BuildReport
 
         static Mat PrepPic(Mat mask, Mat pic)
         {
+            if (mask == null)
+                return pic;
+
             Mat temp = new Mat();
             CvInvoke.GaussianBlur(pic, temp, new System.Drawing.Size(3, 3), 1);
 

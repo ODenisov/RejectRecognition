@@ -52,13 +52,13 @@ namespace RejectRecognGUI
 
             Mask = CvInvoke.Imread("capture" + current_camera.ToString() + ".jpg");
             CvInvoke.GaussianBlur(Mask, Mask, new Size(3, 3), 1);
+            
             Application.Idle += Run;
 
         }
         void Run(object sender, EventArgs e)
         {
-
-            Frame = _cameras[current_camera].QueryFrame();
+            Frame = PrepPic(Mask, _cameras[current_camera].QueryFrame());
             cameraFeed1.Image = Frame;
         }
 
@@ -120,7 +120,7 @@ namespace RejectRecognGUI
 
         private void snapshot1_Click(object sender, EventArgs e)
         {
-            Frame.Save("capture"+current_camera.ToString()+".jpg");
+            _cameras[current_camera].QueryFrame().Save("capture"+current_camera.ToString()+".jpg");
             Mask = CvInvoke.Imread("capture" + current_camera.ToString() + ".jpg");
             CvInvoke.GaussianBlur(Mask, result[0], new Size(3, 3), 1);
         }
@@ -128,6 +128,18 @@ namespace RejectRecognGUI
         private void comboCameras_SelectedIndexChanged(object sender, EventArgs e)
         {
             current_camera = comboCameras.SelectedIndex;
+            refProps();
+            try
+            {
+                Mask = CvInvoke.Imread("capture" + current_camera.ToString() + ".jpg");
+                CvInvoke.GaussianBlur(Mask, Mask, new Size(3, 3), 1);
+            }
+            catch
+            {
+                _cameras[current_camera].QueryFrame().Save("capture" + current_camera.ToString() + ".jpg");
+                Mask = CvInvoke.Imread("capture" + current_camera.ToString() + ".jpg");
+                CvInvoke.GaussianBlur(Mask, result[0], new Size(3, 3), 1);
+            }
         }
     }
 }
