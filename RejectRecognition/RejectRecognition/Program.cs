@@ -70,7 +70,7 @@ namespace RejectRecognition
                 {
                     VSource[i].Retrieve(ResPic[i]);
                     if (!ResPic[i].IsEmpty)
-                        CvInvoke.Imshow(i.ToString(), PrepPic(Masks[i], ResPic[i]));
+                        CvInvoke.Imshow(i.ToString(),ResPic[i]);
                 }
 
                 int c = CvInvoke.WaitKey(33);
@@ -110,7 +110,14 @@ namespace RejectRecognition
             source.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.Fps, FPS);
             source.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.Exposure, exposure);
             source.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.Contrast, contrast);
-        }//SetProperties
+        }//SetProperties 4 args
+
+        static void SetProperties(VideoCapture source, double brigth, double FPS, double contrast)
+        {
+            source.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.Brightness, brigth);
+            source.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.Fps, FPS);
+            source.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.Contrast, contrast);
+        }//SetProperties 3 args
 
         static string BuildReport(int CamNum, double ErrorPerc)
         {
@@ -129,7 +136,7 @@ namespace RejectRecognition
             if (mask.Height == temp.Height)
             {
                 CvInvoke.AbsDiff(mask.Split()[0], temp.Split()[0], temp);
-                CvInvoke.Canny(temp, temp, 25, 150);
+                CvInvoke.Canny(temp, temp, 20, 170);
             }
 
             return temp;
@@ -162,7 +169,7 @@ namespace RejectRecognition
                 double contrast = Convert.ToDouble(Contrast.Split(' ')[1]);
                 double expos = Convert.ToDouble(Exposure.Split(' ')[1]);
                 double fraps = Convert.ToDouble(Fps.Split(' ')[1]);
-                SetProperties(Videos[cameraNum], bright, contrast, expos, fraps);
+                SetProperties(Videos[cameraNum], bright, contrast, fraps);
                 sr.Close();
                 sr.Dispose();
             }
