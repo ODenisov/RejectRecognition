@@ -80,7 +80,7 @@ namespace RejectRecognGUI
         {
             numericBrightness.Value = Convert.ToDecimal(_cameras[current_camera].GetCaptureProperty(CapProp.Brightness));
             numericContrast.Value = Convert.ToDecimal(_cameras[current_camera].GetCaptureProperty(CapProp.Contrast));
-            numericExposure.Value = Convert.ToDecimal(_cameras[current_camera].GetCaptureProperty(CapProp.Exposure));
+            //numericExposure.Value = Convert.ToDecimal(_cameras[current_camera].GetCaptureProperty(CapProp.Exposure));
             numericFPS.Value = Convert.ToDecimal(_cameras[current_camera].GetCaptureProperty(CapProp.Fps));
         }
 
@@ -101,7 +101,7 @@ namespace RejectRecognGUI
 
         private void numericExposure_ValueChanged(object sender, EventArgs e)
         {
-            _cameras[current_camera].SetCaptureProperty(CapProp.Exposure, Convert.ToDouble(numericExposure.Value));
+            //_cameras[current_camera].SetCaptureProperty(CapProp.Exposure, Convert.ToDouble(numericExposure.Value));
         }
 
         private void buttonSave_Click(object sender, EventArgs e)

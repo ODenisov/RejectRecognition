@@ -1,16 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Net;
-using System.Net.Sockets;
 using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 
 using Emgu.CV;
 using Emgu.CV.Structure;
-using Emgu.CV.Util;
 
 namespace RejectRecognition
 {
@@ -26,7 +18,7 @@ namespace RejectRecognition
             int i = 0;
             System.Drawing.Size GausianSize = new System.Drawing.Size(3, 3);
 
-            //Reults
+            //Results
             Mat[] ResPic = new Mat[10];
             for (i = 0; i < 10; i++)
             {
@@ -70,7 +62,10 @@ namespace RejectRecognition
                 {
                     VSource[i].Retrieve(ResPic[i]);
                     if (!ResPic[i].IsEmpty)
-                        CvInvoke.Imshow(i.ToString(),ResPic[i]);
+                    {
+                        CvInvoke.Imshow(i.ToString(),PrepPic(Masks[i], ResPic[i]));
+                        //CvInvoke.Imshow(i.ToString(), ResPic[i]);
+                    }
                 }
 
                 int c = CvInvoke.WaitKey(33);
@@ -169,7 +164,7 @@ namespace RejectRecognition
                 double contrast = Convert.ToDouble(Contrast.Split(' ')[1]);
                 double expos = Convert.ToDouble(Exposure.Split(' ')[1]);
                 double fraps = Convert.ToDouble(Fps.Split(' ')[1]);
-                SetProperties(Videos[cameraNum], bright, contrast, fraps);
+                SetProperties(Videos[cameraNum], bright, contrast, fraps);//3 args
                 sr.Close();
                 sr.Dispose();
             }
