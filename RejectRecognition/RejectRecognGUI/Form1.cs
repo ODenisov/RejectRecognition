@@ -58,7 +58,8 @@ namespace RejectRecognGUI
         }
         void Run(object sender, EventArgs e)
         {
-            Frame = PrepPic(Mask, _cameras[current_camera].QueryFrame());
+            //Frame = PrepPic(Mask, _cameras[current_camera].QueryFrame());
+            Frame = _cameras[current_camera].QueryFrame();
             cameraFeed1.Image = Frame;
         }
 
@@ -141,5 +142,43 @@ namespace RejectRecognGUI
                 CvInvoke.GaussianBlur(Mask, result[0], new Size(3, 3), 1);
             }
         }
+
+        private string sendPOST(string Url, string Data)
+        {
+            byte[] sentData = Encoding.GetEncoding(1251).GetBytes(Data);
+            //form requset
+            System.Net.WebRequest req = System.Net.WebRequest.Create(Url);
+            req.Method = "POST";
+            req.Timeout = 100000;
+            req.ContentType = "application/x-www-form-urlencoded";
+            req.ContentLength = sentData.Length;
+            //request formed
+
+            Stream sendStream = req.GetRequestStream();
+            sendStream.Write(sentData, 0, sentData.Length);
+            sendStream.Close();
+            System.Net.WebResponse res = req.GetResponse();
+            Stream ReceiveStream = res.GetResponseStream();
+            StreamReader sr = new StreamReader(ReceiveStream, Encoding.UTF8);
+            //Кодировка указывается в зависимости от кодировки ответа сервера
+
+            Char[] read = new Char[256];
+            int count = sr.Read(read, 0, 256);
+            string Out = String.Empty;
+            while (count > 0)
+            {
+                String str = new String(read, 0, count);
+                Out += str;
+                count = sr.Read(read, 0, 256);
+            }
+            return Out;
+        }
+
+        private void sendGET()
+        {
+
+        }
+
+
     }
 }

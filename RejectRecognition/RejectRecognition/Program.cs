@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 
+using Newtonsoft.Json;
+
 using Emgu.CV;
 using Emgu.CV.Structure;
 
@@ -8,9 +10,38 @@ namespace RejectRecognition
 {
     class Program
     {
-        //private static async void StartListener()
-        //{            
-        //}
+        class PrePOST
+        {
+           public Device[] device { get; set; }
+        }
+        class Device
+        {
+            public string ID { get; set; }
+        }
+        class RequestForGET
+        {
+            public Service service { get; set; }
+            public RejectList[] rejectList { get; set; }
+            public Error error { get; set; }
+        }
+        class Service
+        {
+            public string state { get; set; }
+        }
+        class RejectList
+        {
+            public string ID { get; set; }
+            public string cameraID { get; set; }
+            public string disparity { get; set; }
+        }
+        class Error
+        {
+            public int  code { get; set; }
+            public string description { get; set; }
+
+        }
+
+
         static void Main(string[] args)
         {
             Mat CameraFeed = new Mat();
@@ -63,8 +94,8 @@ namespace RejectRecognition
                     VSource[i].Retrieve(ResPic[i]);
                     if (!ResPic[i].IsEmpty)
                     {
-                        CvInvoke.Imshow(i.ToString(),PrepPic(Masks[i], ResPic[i]));
-                        //CvInvoke.Imshow(i.ToString(), ResPic[i]);
+                        //CvInvoke.Imshow(i.ToString(),PrepPic(Masks[i], ResPic[i]));
+                        CvInvoke.Imshow(i.ToString(), ResPic[i]);
                     }
                 }
 
@@ -169,6 +200,52 @@ namespace RejectRecognition
                 sr.Dispose();
             }
         }//OpenSettings
+
+
+        private string sendPOST(string Url, string Data)
+        {
+            byte[] sentData = Encoding.GetEncoding(1251).GetBytes(Data);
+            //form requset
+            System.Net.WebRequest req = System.Net.WebRequest.Create(Url);
+            req.Method = "POST";
+            req.Timeout = 100000;
+            req.ContentType = "application/x-www-form-urlencoded";
+            req.ContentLength = sentData.Length;
+            //request formed
+
+            Stream sendStream = req.GetRequestStream();
+            sendStream.Write(sentData, 0, sentData.Length);
+            sendStream.Close();
+            System.Net.WebResponse res = req.GetResponse();
+            Stream ReceiveStream = res.GetResponseStream();
+            StreamReader sr = new StreamReader(ReceiveStream, Encoding.UTF8);
+            //Кодировка указывается в зависимости от кодировки ответа сервера
+
+            Char[] read = new Char[256];
+            int count = sr.Read(read, 0, 256);
+            string Out = String.Empty;
+            while (count > 0)
+            {
+                String str = new String(read, 0, count);
+                Out += str;
+                count = sr.Read(read, 0, 256);
+            }
+            return Out;
+        }
+
+        private void sendGET()
+        {
+
+        }
+        private string makeJSON(PrePOST JSONobj)
+        {
+            return JsonConvert.SerializeObject(JSONobj);
+        }
+
+        private string makeJSON(RequestForGET JSONobj)
+        {
+            return JsonConvert.SerializeObject(JSONobj);
+        }
 
     }
 }
