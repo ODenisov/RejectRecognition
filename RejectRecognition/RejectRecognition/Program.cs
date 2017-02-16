@@ -16,14 +16,6 @@ namespace RejectRecognition
         HttpListener server;
         bool flag = true;
 
-        class PrePOST
-        {
-            public Device[] device { get; set; }
-        }
-        class Device
-        {
-            public string ID { get; set; }
-        }
         class RequestForGET
         {
             public Service service { get; set; }
@@ -244,8 +236,7 @@ namespace RejectRecognition
                 sr.Dispose();
             }
         }//OpenSettings
-
-
+        
         //prefix - {String} - URI kinda like @"http://192.168.2.10:6000"
         private void StartServer(string prefix)
         {
@@ -306,10 +297,6 @@ namespace RejectRecognition
                     }
                 }
             }
-        }
-        static string makeJSON(PrePOST JSONobj)
-        {
-            return JsonConvert.SerializeObject(JSONobj);
         }
         static string makeJSON(RequestForGET JSONobj)
         {
