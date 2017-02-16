@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using System.Net;
+using System.Threading;
 
 using Newtonsoft.Json;
 
@@ -11,9 +13,12 @@ namespace RejectRecognition
 {
     class Program
     {
+        HttpListener server;
+        bool flag = true;
+
         class PrePOST
         {
-           public Device[] device { get; set; }
+            public Device[] device { get; set; }
         }
         class Device
         {
@@ -32,17 +37,54 @@ namespace RejectRecognition
         class RejectList
         {
             public string ID { get; set; }
-            public string cameraID { get; set; }
+            //public string cameraID { get; set; }
             public string disparity { get; set; }
         }
         class Error
         {
-            public int  code { get; set; }
+            public int code { get; set; }
             public string description { get; set; }
 
         }
 
+        static string FormResponse(Mat[] sources,Mat[] masks, string type)
+        {
+            int count = sources.Length;
+            string answer = @"";
+            switch (type)
+            {
+                case "POST":
+                    sources[count].Save("capture" + count.ToString() + ".jpg");
+                    masks[count] = CvInvoke.Imread("capture" + count.ToString() + ".jpg");
+                    CvInvoke.GaussianBlur(masks[count], masks[count],new System.Drawing.Size(3, 3), 1);
+                    break;
+                case "GET":
+                    RequestForGET resp = new RequestForGET();
+                    Service serv = new Service();
+                    RejectList[] rej = new RejectList[count];
+                    Error err = new Error();
 
+                    serv.state = "READY";
+                    err.code = 0;
+                    err.description = "";
+
+                    for (int i = 0; i < count; i++)
+                    {
+                        if (!sources[i].IsEmpty)
+                        {
+                            rej[i].ID = i.ToString();
+                            rej[i].disparity = CountDiff(PrepPic(masks[i], sources[i])).ToString();
+                        }
+                    }
+
+                    break;
+                default:
+                    break;
+            }
+
+
+            return answer;
+        }
         static void Main(string[] args)
         {
             Mat CameraFeed = new Mat();
@@ -79,6 +121,7 @@ namespace RejectRecognition
                 try
                 {
                     VSource[i] = new VideoCapture(i);
+                    VSource[i].SetCaptureProperty(Emgu.CV.CvEnum.CapProp.AutoExposure, 1);
                 }
                 catch
                 {
@@ -131,7 +174,7 @@ namespace RejectRecognition
             CvInvoke.DestroyAllWindows(); //конец видеопотока
         }//main
 
-        static void SetProperties(VideoCapture source, double brigth, double FPS, double exposure,double contrast)
+        static void SetProperties(VideoCapture source, double brigth, double FPS, double exposure, double contrast)
         {
             source.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.Brightness, brigth);
             source.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.Fps, FPS);
@@ -183,7 +226,7 @@ namespace RejectRecognition
                 try
                 {
                     sr = new StreamReader("Settings_Camera_" + cameraNum.ToString() + ".txt");
-                }catch
+                } catch
                 {
                     continue;
                 }
@@ -203,47 +246,72 @@ namespace RejectRecognition
         }//OpenSettings
 
 
-        private string sendPOST(string Url, string Data)
+        //prefix - {String} - URI kinda like @"http://192.168.2.10:6000"
+        private void StartServer(string prefix)
         {
-            byte[] sentData = Encoding.GetEncoding(1251).GetBytes(Data);
-            //form requset
-            System.Net.WebRequest req = System.Net.WebRequest.Create(Url);
-            req.Method = "POST";
-            req.Timeout = 100000;
-            req.ContentType = "application/x-www-form-urlencoded";
-            req.ContentLength = sentData.Length;
-            //request formed
+            server = new HttpListener();
 
-            Stream sendStream = req.GetRequestStream();
-            sendStream.Write(sentData, 0, sentData.Length);
-            sendStream.Close();
-            System.Net.WebResponse res = req.GetResponse();
-            Stream ReceiveStream = res.GetResponseStream();
-            StreamReader sr = new StreamReader(ReceiveStream, Encoding.UTF8);
-            //Кодировка указывается в зависимости от кодировки ответа сервера
+            if (string.IsNullOrEmpty(prefix))
+                throw new ArgumentException("prefix");
+            server.Prefixes.Add(prefix);
 
-            Char[] read = new Char[256];
-            int count = sr.Read(read, 0, 256);
-            string Out = String.Empty;
-            while (count > 0)
+            //запускаем север
+            server.Start();
+
+            //Listaning
+            while (server.IsListening)
             {
-                String str = new String(read, 0, count);
-                Out += str;
-                count = sr.Read(read, 0, 256);
+                //ожидаем входящие запросы
+                HttpListenerContext context = server.GetContext();
+                HttpListenerRequest request = context.Request;
+
+                //запрос получен методом POST
+                if (request.HttpMethod == "POST")
+                {
+                    //показать, что пришло от клиента
+                    ShowRequestData(request);
+                    //завершаем работу сервера
+                    if (!flag) return;
+                }
+
+                string responseString = @"RESPONSE";//заглушка
+             
+                HttpListenerResponse response = context.Response;
+                response.ContentType = "text/html; charset=UTF-8";
+
+                byte[] buffer = Encoding.UTF8.GetBytes(responseString);
+                response.ContentLength64 = buffer.Length;
+                using (Stream output = response.OutputStream)
+                {
+                    output.Write(buffer, 0, buffer.Length);
+                }
             }
-            return Out;
         }
-
-        private void sendGET()
+    
+        private void ShowRequestData(HttpListenerRequest request)
         {
-
+            if (!request.HasEntityBody) return;
+            using (Stream body = request.InputStream)
+            {
+                using (StreamReader reader = new StreamReader(body))
+                {
+                    string text = reader.ReadToEnd();
+ 
+                    flag = true;
+                    //останавливаем сервер
+                    if (text == "stop")
+                    {
+                        server.Stop();
+                        flag = false;
+                    }
+                }
+            }
         }
-        private string makeJSON(PrePOST JSONobj)
+        static string makeJSON(PrePOST JSONobj)
         {
             return JsonConvert.SerializeObject(JSONobj);
         }
-
-        private string makeJSON(RequestForGET JSONobj)
+        static string makeJSON(RequestForGET JSONobj)
         {
             return JsonConvert.SerializeObject(JSONobj);
         }
