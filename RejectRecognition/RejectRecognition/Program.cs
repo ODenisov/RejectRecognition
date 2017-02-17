@@ -15,6 +15,10 @@ namespace RejectRecognition
     {
         HttpListener server;
         bool flag = true;
+        static Mat CameraFeed = new Mat();
+        static Mat[] Masks = new Mat[10];
+        static Mat[] ResPic = new Mat[10];
+
 
         class RequestForGET
         {
@@ -69,6 +73,8 @@ namespace RejectRecognition
                         }
                     }
 
+                    resp.service = serv;resp.rejectList = rej;resp.error = err;
+                    answer = makeJSON(resp);
                     break;
                 default:
                     break;
@@ -79,11 +85,8 @@ namespace RejectRecognition
         }
         static void Main(string[] args)
         {
-            Mat CameraFeed = new Mat();
-            Mat[] Masks = new Mat[10];
             int i = 0;
             System.Drawing.Size GausianSize = new System.Drawing.Size(3, 3);
-
             //Results
             Mat[] ResPic = new Mat[10];
             for (i = 0; i < 10; i++)
@@ -248,7 +251,7 @@ namespace RejectRecognition
 
             //запускаем север
             server.Start();
-
+            string responseString = "";
             //Listaning
             while (server.IsListening)
             {
@@ -257,15 +260,12 @@ namespace RejectRecognition
                 HttpListenerRequest request = context.Request;
 
                 //запрос получен методом POST
-                if (request.HttpMethod == "POST")
+                if (request.HttpMethod == "GET")
                 {
-                    //показать, что пришло от клиента
-                    ShowRequestData(request);
-                    //завершаем работу сервера
-                    if (!flag) return;
+                    responseString = FormResponse(ResPic, Masks, request.HttpMethod);
                 }
 
-                string responseString = @"RESPONSE";//заглушка
+              
              
                 HttpListenerResponse response = context.Response;
                 response.ContentType = "text/html; charset=UTF-8";
@@ -275,26 +275,6 @@ namespace RejectRecognition
                 using (Stream output = response.OutputStream)
                 {
                     output.Write(buffer, 0, buffer.Length);
-                }
-            }
-        }
-    
-        private void ShowRequestData(HttpListenerRequest request)
-        {
-            if (!request.HasEntityBody) return;
-            using (Stream body = request.InputStream)
-            {
-                using (StreamReader reader = new StreamReader(body))
-                {
-                    string text = reader.ReadToEnd();
- 
-                    flag = true;
-                    //останавливаем сервер
-                    if (text == "stop")
-                    {
-                        server.Stop();
-                        flag = false;
-                    }
                 }
             }
         }
