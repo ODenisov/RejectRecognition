@@ -116,7 +116,7 @@ namespace RejectRecognition
                 try
                 {
                     VSource[i] = new VideoCapture(i);
-                    VSource[i].SetCaptureProperty(Emgu.CV.CvEnum.CapProp.AutoExposure, 1);
+                    //VSource[i].SetCaptureProperty(Emgu.CV.CvEnum.CapProp.AutoExposure, 1);
                 }
                 catch
                 {
@@ -196,7 +196,7 @@ namespace RejectRecognition
                 return pic;
 
             Mat temp = new Mat();
-            CvInvoke.GaussianBlur(pic, temp, new System.Drawing.Size(3, 3), 1);
+            CvInvoke.GaussianBlur(pic, temp, new System.Drawing.Size(3, 3), -9);
 
             if (mask.Height == temp.Height)
             {
@@ -233,8 +233,8 @@ namespace RejectRecognition
                 double bright = Convert.ToDouble(Brightness.Split(' ')[1]);
                 double contrast = Convert.ToDouble(Contrast.Split(' ')[1]);
                 double expos = Convert.ToDouble(Exposure.Split(' ')[1]);
-                double fraps = Convert.ToDouble(Fps.Split(' ')[1]);
-                SetProperties(Videos[cameraNum], bright, contrast, fraps);//3 args
+                double fraps = Convert.ToDouble(Fps.Split(' ')[1]) == 0 ? 60 : Convert.ToDouble(Fps.Split(' ')[1]);//если фпс не меняли, ставим 60
+                SetProperties(Videos[cameraNum], bright, fraps, contrast);//3 args
                 sr.Close();
                 sr.Dispose();
             }
