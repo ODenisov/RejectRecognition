@@ -42,6 +42,7 @@
             this.numericExposure = new System.Windows.Forms.NumericUpDown();
             this.comboCameras = new System.Windows.Forms.ComboBox();
             this.buttonSave = new System.Windows.Forms.Button();
+            this.AutoExpos = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.cameraFeed1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericContrast)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericBrightness)).BeginInit();
@@ -151,6 +152,7 @@
             // LabelExposure
             // 
             this.LabelExposure.AutoSize = true;
+            this.LabelExposure.Enabled = false;
             this.LabelExposure.Location = new System.Drawing.Point(179, 403);
             this.LabelExposure.Name = "LabelExposure";
             this.LabelExposure.Size = new System.Drawing.Size(51, 13);
@@ -159,6 +161,7 @@
             // 
             // numericExposure
             // 
+            this.numericExposure.Enabled = false;
             this.numericExposure.Location = new System.Drawing.Point(229, 401);
             this.numericExposure.Maximum = new decimal(new int[] {
             1000,
@@ -194,11 +197,25 @@
             this.buttonSave.UseVisualStyleBackColor = true;
             this.buttonSave.Click += new System.EventHandler(this.buttonSave_Click);
             // 
+            // AutoExpos
+            // 
+            this.AutoExpos.AutoSize = true;
+            this.AutoExpos.Checked = true;
+            this.AutoExpos.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.AutoExpos.Location = new System.Drawing.Point(304, 403);
+            this.AutoExpos.Name = "AutoExpos";
+            this.AutoExpos.Size = new System.Drawing.Size(110, 17);
+            this.AutoExpos.TabIndex = 8;
+            this.AutoExpos.Text = "Автоэкспозиция";
+            this.AutoExpos.UseVisualStyleBackColor = true;
+            this.AutoExpos.CheckStateChanged += new System.EventHandler(this.AutoExpos_CheckStateChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(448, 486);
+            this.Controls.Add(this.AutoExpos);
             this.Controls.Add(this.buttonSave);
             this.Controls.Add(this.comboCameras);
             this.Controls.Add(this.numericBrightness);
@@ -238,6 +255,7 @@
         private System.Windows.Forms.NumericUpDown numericExposure;
         private System.Windows.Forms.ComboBox comboCameras;
         private System.Windows.Forms.Button buttonSave;
+        private System.Windows.Forms.CheckBox AutoExpos;
     }
 }
 

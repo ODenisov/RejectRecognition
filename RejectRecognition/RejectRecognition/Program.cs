@@ -133,8 +133,8 @@ namespace RejectRecognition
                     VSource[i].Retrieve(ResPic[i]);
                     if (!ResPic[i].IsEmpty)
                     {
-                        //CvInvoke.Imshow(i.ToString(),PrepPic(Masks[i], ResPic[i]));
-                        CvInvoke.Imshow(i.ToString(), ResPic[i]);
+                        CvInvoke.Imshow(i.ToString(),PrepPic(Masks[i], ResPic[i]));
+                        //CvInvoke.Imshow(i.ToString(), ResPic[i]);
                     }
                 }
 
@@ -201,7 +201,7 @@ namespace RejectRecognition
             if (mask.Height == temp.Height)
             {
                 CvInvoke.AbsDiff(mask.Split()[0], temp.Split()[0], temp);
-                CvInvoke.Canny(temp, temp, 20, 170);
+                CvInvoke.Canny(temp, temp, 10, 250);
             }
 
             return temp;
