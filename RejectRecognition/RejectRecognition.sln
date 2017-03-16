@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RejectRecognition", "Reject
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RejectRecognGUI", "RejectRecognGUI\RejectRecognGUI.csproj", "{C7F79548-D24B-4FAE-AB2C-1312FB8D3846}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestServer", "TestServer\TestServer.csproj", "{B2296DDC-65E2-4459-85BC-967A25E3546F}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,14 +31,6 @@ Global
 		{C7F79548-D24B-4FAE-AB2C-1312FB8D3846}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C7F79548-D24B-4FAE-AB2C-1312FB8D3846}.Release|x64.ActiveCfg = Release|Any CPU
 		{C7F79548-D24B-4FAE-AB2C-1312FB8D3846}.Release|x64.Build.0 = Release|Any CPU
-		{B2296DDC-65E2-4459-85BC-967A25E3546F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B2296DDC-65E2-4459-85BC-967A25E3546F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B2296DDC-65E2-4459-85BC-967A25E3546F}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{B2296DDC-65E2-4459-85BC-967A25E3546F}.Debug|x64.Build.0 = Debug|Any CPU
-		{B2296DDC-65E2-4459-85BC-967A25E3546F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B2296DDC-65E2-4459-85BC-967A25E3546F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B2296DDC-65E2-4459-85BC-967A25E3546F}.Release|x64.ActiveCfg = Release|Any CPU
-		{B2296DDC-65E2-4459-85BC-967A25E3546F}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

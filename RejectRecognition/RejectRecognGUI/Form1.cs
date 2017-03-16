@@ -1,18 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.IO;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using Emgu.CV;
-using Emgu.CV.Cvb;
-using Emgu.CV.UI;
 using Emgu.CV.CvEnum;
-using Emgu.CV.Structure;
+
 
 
 namespace RejectRecognGUI
@@ -25,8 +18,7 @@ namespace RejectRecognGUI
         public static Mat Frame = new Mat();
         public static Mat Frame1 = new Mat();
         public static Mat Mask = new Mat();
-
-
+     
         public Form1()
         {
             InitializeComponent();
@@ -49,7 +41,7 @@ namespace RejectRecognGUI
             comboCameras.SelectedIndex = 0;
             current_camera = comboCameras.SelectedIndex;
             refProps();
-
+            _cameras[0].SetCaptureProperty(CapProp.Backlight, 1);
             Mask = CvInvoke.Imread("capture" + current_camera.ToString() + ".jpg");
             CvInvoke.GaussianBlur(Mask, Mask, new Size(3, 3), 1);
             
