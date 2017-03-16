@@ -167,7 +167,6 @@ namespace RejectRecognition
                 }
                 else if (c == 13)
                 {
-                    Task.Run(() => Listen(adress));
                     for (i = 0; i < 10; i++)
                     {
                         if ((!ResPic[i].IsEmpty)&&(ResPic[i].Height<500))
