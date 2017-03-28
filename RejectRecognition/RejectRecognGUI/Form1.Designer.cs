@@ -38,16 +38,12 @@
             this.numericContrast = new System.Windows.Forms.NumericUpDown();
             this.numericBrightness = new System.Windows.Forms.NumericUpDown();
             this.numericFPS = new System.Windows.Forms.NumericUpDown();
-            this.LabelExposure = new System.Windows.Forms.Label();
-            this.numericExposure = new System.Windows.Forms.NumericUpDown();
             this.comboCameras = new System.Windows.Forms.ComboBox();
             this.buttonSave = new System.Windows.Forms.Button();
-            this.AutoExpos = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.cameraFeed1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericContrast)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericBrightness)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericFPS)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericExposure)).BeginInit();
             this.SuspendLayout();
             // 
             // cameraFeed1
@@ -64,36 +60,36 @@
             this.snapshot1.Name = "snapshot1";
             this.snapshot1.Size = new System.Drawing.Size(75, 23);
             this.snapshot1.TabIndex = 2;
-            this.snapshot1.Text = "Snapshot";
+            this.snapshot1.Text = "Снимок";
             this.snapshot1.UseVisualStyleBackColor = true;
             this.snapshot1.Click += new System.EventHandler(this.snapshot1_Click);
             // 
             // LabelBrightness
             // 
             this.LabelBrightness.AutoSize = true;
-            this.LabelBrightness.Location = new System.Drawing.Point(169, 325);
+            this.LabelBrightness.Location = new System.Drawing.Point(173, 325);
             this.LabelBrightness.Name = "LabelBrightness";
-            this.LabelBrightness.Size = new System.Drawing.Size(56, 13);
+            this.LabelBrightness.Size = new System.Drawing.Size(50, 13);
             this.LabelBrightness.TabIndex = 4;
-            this.LabelBrightness.Text = "Brightness";
+            this.LabelBrightness.Text = "Яркость";
             // 
             // LabelFPS
             // 
             this.LabelFPS.AutoSize = true;
-            this.LabelFPS.Location = new System.Drawing.Point(198, 351);
+            this.LabelFPS.Location = new System.Drawing.Point(186, 351);
             this.LabelFPS.Name = "LabelFPS";
-            this.LabelFPS.Size = new System.Drawing.Size(27, 13);
+            this.LabelFPS.Size = new System.Drawing.Size(37, 13);
             this.LabelFPS.TabIndex = 4;
-            this.LabelFPS.Text = "FPS";
+            this.LabelFPS.Text = "Кдр/с";
             // 
             // LabelContrast
             // 
             this.LabelContrast.AutoSize = true;
-            this.LabelContrast.Location = new System.Drawing.Point(179, 377);
+            this.LabelContrast.Location = new System.Drawing.Point(140, 377);
             this.LabelContrast.Name = "LabelContrast";
-            this.LabelContrast.Size = new System.Drawing.Size(46, 13);
+            this.LabelContrast.Size = new System.Drawing.Size(83, 13);
             this.LabelContrast.TabIndex = 4;
-            this.LabelContrast.Text = "Contrast";
+            this.LabelContrast.Text = "Контрастность";
             // 
             // numericContrast
             // 
@@ -149,35 +145,6 @@
             this.numericFPS.TabIndex = 5;
             this.numericFPS.ValueChanged += new System.EventHandler(this.numericFPS_ValueChanged);
             // 
-            // LabelExposure
-            // 
-            this.LabelExposure.AutoSize = true;
-            this.LabelExposure.Enabled = false;
-            this.LabelExposure.Location = new System.Drawing.Point(179, 403);
-            this.LabelExposure.Name = "LabelExposure";
-            this.LabelExposure.Size = new System.Drawing.Size(51, 13);
-            this.LabelExposure.TabIndex = 4;
-            this.LabelExposure.Text = "Exposure";
-            // 
-            // numericExposure
-            // 
-            this.numericExposure.Enabled = false;
-            this.numericExposure.Location = new System.Drawing.Point(229, 401);
-            this.numericExposure.Maximum = new decimal(new int[] {
-            1000,
-            0,
-            0,
-            0});
-            this.numericExposure.Minimum = new decimal(new int[] {
-            100,
-            0,
-            0,
-            -2147483648});
-            this.numericExposure.Name = "numericExposure";
-            this.numericExposure.Size = new System.Drawing.Size(55, 20);
-            this.numericExposure.TabIndex = 5;
-            this.numericExposure.ValueChanged += new System.EventHandler(this.numericExposure_ValueChanged);
-            // 
             // comboCameras
             // 
             this.comboCameras.FormattingEnabled = true;
@@ -193,35 +160,19 @@
             this.buttonSave.Name = "buttonSave";
             this.buttonSave.Size = new System.Drawing.Size(98, 23);
             this.buttonSave.TabIndex = 7;
-            this.buttonSave.Text = "Save";
+            this.buttonSave.Text = "Сохранить";
             this.buttonSave.UseVisualStyleBackColor = true;
             this.buttonSave.Click += new System.EventHandler(this.buttonSave_Click);
-            // 
-            // AutoExpos
-            // 
-            this.AutoExpos.AutoSize = true;
-            this.AutoExpos.Checked = true;
-            this.AutoExpos.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.AutoExpos.Location = new System.Drawing.Point(304, 403);
-            this.AutoExpos.Name = "AutoExpos";
-            this.AutoExpos.Size = new System.Drawing.Size(110, 17);
-            this.AutoExpos.TabIndex = 8;
-            this.AutoExpos.Text = "Автоэкспозиция";
-            this.AutoExpos.UseVisualStyleBackColor = true;
-            this.AutoExpos.CheckStateChanged += new System.EventHandler(this.AutoExpos_CheckStateChanged);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(448, 486);
-            this.Controls.Add(this.AutoExpos);
             this.Controls.Add(this.buttonSave);
             this.Controls.Add(this.comboCameras);
             this.Controls.Add(this.numericBrightness);
             this.Controls.Add(this.numericFPS);
-            this.Controls.Add(this.numericExposure);
-            this.Controls.Add(this.LabelExposure);
             this.Controls.Add(this.numericContrast);
             this.Controls.Add(this.LabelContrast);
             this.Controls.Add(this.LabelFPS);
@@ -229,12 +180,11 @@
             this.Controls.Add(this.snapshot1);
             this.Controls.Add(this.cameraFeed1);
             this.Name = "Form1";
-            this.Text = "ХЛЪБ";
+            this.Text = "CRN";
             ((System.ComponentModel.ISupportInitialize)(this.cameraFeed1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericContrast)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericBrightness)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericFPS)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericExposure)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -251,11 +201,8 @@
         private System.Windows.Forms.NumericUpDown numericContrast;
         private System.Windows.Forms.NumericUpDown numericBrightness;
         private System.Windows.Forms.NumericUpDown numericFPS;
-        private System.Windows.Forms.Label LabelExposure;
-        private System.Windows.Forms.NumericUpDown numericExposure;
         private System.Windows.Forms.ComboBox comboCameras;
         private System.Windows.Forms.Button buttonSave;
-        private System.Windows.Forms.CheckBox AutoExpos;
     }
 }
 

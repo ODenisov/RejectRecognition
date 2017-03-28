@@ -51,7 +51,7 @@ namespace RejectRecognGUI
         void Run(object sender, EventArgs e)
         {
             //Frame = PrepPic(Mask, _cameras[current_camera].QueryFrame());
-            Frame = _cameras[current_camera].QueryFrame();
+            Frame =  _cameras[current_camera].QueryFrame();
             cameraFeed1.Image = Frame;
         }
 
@@ -63,6 +63,7 @@ namespace RejectRecognGUI
             if (mask.Height == temp.Height)
             {
                 CvInvoke.AbsDiff(mask.Split()[0], temp.Split()[0], temp);
+                CvInvoke.Threshold(temp, temp, 35, 255, ThresholdType.Binary);
                 CvInvoke.Canny(temp, temp, 25, 150);
             }
 
@@ -73,7 +74,6 @@ namespace RejectRecognGUI
         {
             numericBrightness.Value = Convert.ToDecimal(_cameras[current_camera].GetCaptureProperty(CapProp.Brightness));
             numericContrast.Value = Convert.ToDecimal(_cameras[current_camera].GetCaptureProperty(CapProp.Contrast));
-            numericExposure.Value = Convert.ToDecimal(_cameras[current_camera].GetCaptureProperty(CapProp.Exposure));
             numericFPS.Value = Convert.ToDecimal(_cameras[current_camera].GetCaptureProperty(CapProp.Fps));
         }
 
@@ -92,10 +92,6 @@ namespace RejectRecognGUI
             _cameras[current_camera].SetCaptureProperty(CapProp.Contrast, Convert.ToDouble(numericContrast.Value));
         }
 
-        private void numericExposure_ValueChanged(object sender, EventArgs e)
-        {
-            _cameras[current_camera].SetCaptureProperty(CapProp.Exposure, Convert.ToDouble(numericExposure.Value));
-        }
 
         private void buttonSave_Click(object sender, EventArgs e)
         {
@@ -135,18 +131,5 @@ namespace RejectRecognGUI
             }
         }
 
-        private void AutoExpos_CheckStateChanged(object sender, EventArgs e)
-        {
-            if(AutoExpos.Checked==true)
-            {
-                numericExposure.Enabled = false;
-                LabelExposure.Enabled = false;
-            }
-            else
-            {
-                numericExposure.Enabled = true;
-                LabelExposure.Enabled = true;
-            }
-        }
     }
 }

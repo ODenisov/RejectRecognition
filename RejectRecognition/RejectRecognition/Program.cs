@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 
 using Emgu.CV;
 using Emgu.CV.Structure;
+using Emgu.CV.CvEnum;
 
 
 namespace RejectRecognition
@@ -18,47 +19,53 @@ namespace RejectRecognition
         static Mat CameraFeed = new Mat();
         static Mat[] Masks = new Mat[10];
         static Mat[] ResPic = new Mat[10];
+        static StreamWriter sw = new StreamWriter("log"+DateTime.Now.ToString("dd_mm_yy-HH_MM")+".txt");
+        //consts
+        static int HEIGHT = 500;
+        static int WARNINGTRH = 10;
+        static int ALERTTRH = 25;
+
 
         class Service
         {
-            public string State { get; set; }
+            public string state { get; set; }
         }
-        class RejectList
+        class DeviceList
         {
-            public string ID { get; set; }
+            public string id { get; set; }
             //public string cameraID { get; set; }
-            public string Disparity { get; set; }
+            public string disparity { get; set; }
         }
         class CameraList
         {
-            public string ID { get; set; }
+            public string id { get; set; }
         }
         class Error
         {
-            public int Code { get; set; }
-            public string Description { get; set; }
+            public string code { get; set; }
+            public string description { get; set; }
 
         }
         class ResponseForSnap
         {
-            public Error Error { get; set; }
+            public Error error { get; set; }
         }
         class ResponseForTest
         {
-            public CameraList[] CameraList { get; set; }
-            public Error Error { get; set; }
+            public CameraList[] cameraList { get; set; }
+            public Error error { get; set; }
         }
         class ResponseForCheck
         {
-            public Service Service { get; set; }
-            public RejectList[] RejectList { get; set; }
-            public Error Error { get; set; }
+            public Service service { get; set; }
+            public DeviceList[] rejectList { get; set; }
+            public Error error { get; set; }
         }
 
         private static async Task Listen(string adress)
         {
             HttpListener listener = new HttpListener();
-            listener.Prefixes.Add(@"http://"+adress+":35053/");
+            listener.Prefixes.Add(@"http://"+adress+":35053/comp_sight/");
             Console.WriteLine(listener.Prefixes.ElementAt<string>(0));
             try
             {
@@ -74,30 +81,44 @@ namespace RejectRecognition
                 HttpListenerRequest request = context.Request;
                 HttpListenerResponse response = context.Response;
 
+                Console.WriteLine(request.QueryString.Keys.Count.ToString());
+                
                 string responseString = "";
-                switch (request.QueryString.GetValues("comm")[0])
+                switch (request.QueryString.GetValues("cmd")[0])
                 {
                     case "make_snp":
-                        Console.WriteLine(request.QueryString.GetValues(1)[0]);
                         responseString = FormResponseSnap(ResPic, Masks, request.QueryString.GetValues(1)[0]);
+                        Console.WriteLine("make_snp: ");
+                        sw.Write("make_snp"+ DateTime.Now.ToString("(HH_mm_ss)") + ": ");
                         break;
-                    case "rj_check":
-                        responseString = FormResponseCheck(ResPic, Masks);
+                    case "rej_check":
+                        responseString = FormResponseCheck(ResPic, Masks, request.QueryString.GetValues("id") == null ?
+                                                                                                                "ALL" : 
+                                                                                                                request.QueryString.GetValues("id")[0]);
+                        Console.WriteLine("rej_check: ");
+                        sw.Write("rej_check: ");
                         break;
                     case "self_test":
                         responseString = FormResponseTest(ResPic, Masks);
+                        Console.WriteLine("self_test: ");
+                        sw.Write("self_test: ");
                         break;
                     default:
                         break;
 
                 }
 
+                Console.WriteLine(responseString);
+                sw.WriteLine(responseString);
+                sw.Flush();
                 byte[] buffer = Encoding.UTF8.GetBytes(responseString);
                 response.ContentLength64 = buffer.Length;
                 Stream output = response.OutputStream;
                 output.Write(buffer, 0, buffer.Length);
+                output.Flush();
                 output.Close();
             }
+            Console.WriteLine("server stoped working");
         }//Listen
                 
         static void Main(string[] args)
@@ -145,7 +166,7 @@ namespace RejectRecognition
 
 
             OpenSettings(VSource);
-
+            Task.Run(() => Listen(adress));
             while (true)
             {
                 for (i = 0; i < 10; i++)
@@ -176,14 +197,6 @@ namespace RejectRecognition
                             CvInvoke.GaussianBlur(Masks[i], Masks[i], GausianSize, 1);
                         }//fi
                     }//for
-                }//else fi
-                else if (c == 32)
-                {
-                    for (i = 0; i < 10; i++)
-                        if (ResPic[i].Height > 0)
-                        {
-                            Console.WriteLine(BuildReport(i, CountDiff(PrepPic(Masks[i], ResPic[i]))));
-                        }//fi
                 }//else fi
             }
 
@@ -225,7 +238,7 @@ namespace RejectRecognition
             source.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.Exposure, exposure);
             source.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.Contrast, contrast);
         }//SetProperties 4 args
-
+   
         static void SetProperties(VideoCapture source, double brigth, double FPS, double contrast)
         {
             source.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.Brightness, brigth);
@@ -239,21 +252,31 @@ namespace RejectRecognition
                 return pic;
 
             Mat temp = new Mat();
-            CvInvoke.GaussianBlur(pic, temp, new System.Drawing.Size(3, 3), -9);
+            //CvInvoke.GaussianBlur(pic, temp, new System.Drawing.Size(3, 3), -9);
+            pic.CopyTo(temp);
 
             if (mask.Height == temp.Height)
             {
                 CvInvoke.AbsDiff(mask.Split()[0], temp.Split()[0], temp);
-                CvInvoke.Canny(temp, temp, 10, 250);
+                CvInvoke.Threshold(temp, temp, 37, 255, ThresholdType.Binary);
+                CvInvoke.Canny(temp, temp, 25, 100);
             }
 
             return temp;
         }//PrepPic
 
-        static double CountDiff(Mat pic)
+        static string CountDiff(Mat pic)
         {
             MCvScalar scalar = CvInvoke.Sum(pic);
-            return scalar.V0 / 25500;
+            double test = scalar.V0 / 25500;
+            Console.WriteLine("disp = " + (test).ToString());
+            sw.WriteLine("disp = " + (scalar.V0 / 25500).ToString());
+            if ((scalar.V0 / 25500) < WARNINGTRH)
+                return "CLEAR";
+            else if ((scalar.V0 / 25500) < ALERTTRH)
+                return "WARNING";
+            else
+                return "ALERT";
         }//CountDiff
 
         static string BuildReport(int CamNum, double ErrorPerc)
@@ -276,87 +299,100 @@ namespace RejectRecognition
                 {
                     for (i = 0; i < count; i++)
                     {
-                        if ((!sources[i].IsEmpty) && (sources[i].Height < 500))
+                        if ((!sources[i].IsEmpty) && (sources[i].Height < HEIGHT))
                         {
+                            masks[i] =sources[i];
                             sources[i].Save("capture" + i.ToString() + ".jpg");
-                            masks[i] = CvInvoke.Imread("capture" + i.ToString() + ".jpg");
-                            CvInvoke.GaussianBlur(masks[i], masks[i], new System.Drawing.Size(3, 3), 1);
+                            //CvInvoke.GaussianBlur(masks[i], masks[i], new System.Drawing.Size(3, 3), 1);
                         }
                     }
                 }
                 else
                 {
                     i = Convert.ToInt32(id);
-                    if ((!sources[i].IsEmpty) && (sources[i].Height < 500))
+                    if ((!sources[i].IsEmpty) && (sources[i].Height < HEIGHT))
                     {
+                        masks[i] = sources[i];
                         sources[i].Save("capture" + i.ToString() + ".jpg");
-                        masks[i] = CvInvoke.Imread("capture" + i.ToString() + ".jpg");
-                        CvInvoke.GaussianBlur(masks[i], masks[i], new System.Drawing.Size(3, 3), 1);
+                       //CvInvoke.GaussianBlur(masks[i], masks[i], new System.Drawing.Size(3, 3), 1);
                     }
                 }
             }
             catch
             {
-                err.Code = 1;
-                err.Description = "Something went wrong";
-                resp.Error = err;
+                err.code = 1.ToString();
+                err.description = "Something went wrong";
+                resp.error = err;
                 answer = MakeJSON(resp);
                 return answer;
             }
 
-            err.Code = 0;
-            err.Description = "";
-            resp.Error = err;
+            err.code = 0.ToString(); ;
+            err.description = "";
+            resp.error = err;
             answer = MakeJSON(resp);
-
             return answer;
         }//FormResponse
 
-        static string FormResponseCheck(Mat[] sources, Mat[] masks)
+        static string FormResponseCheck(Mat[] sources, Mat[] masks,string id)
         {
             int count = sources.Length;
             string answer = @"";
             int cam = 0;
+            int Id = Convert.ToInt32(id);
+            Id = (id == "ALL" ? 0 : Id);
             for (int i = 0; i < count; i++)
             {
-                if ((!sources[i].IsEmpty) && (sources[i].Height < 500))
+                if ((!sources[i].IsEmpty) && (sources[i].Height < HEIGHT))
                 {
                     cam++;
                 }
             }
             ResponseForCheck resp = new ResponseForCheck();
             Service serv = new Service();
-            RejectList[] rej = new RejectList[count];
+            DeviceList[] rej = new DeviceList[cam];
             for (int i = 0; i < cam; i++)
             {
-                rej[i] = new RejectList();
+                rej[i] = new DeviceList();
             }
             Error err = new Error();
 
-            serv.State = "READY";
-            err.Code = 0;
-            err.Description = "";
+            serv.state = "READY";
+            err.code = 0.ToString();
+            err.description = "";
             try
             {
-                for (int i = 0; i < cam; i++)
-                {                
-                    rej[i].ID = i.ToString();
-                    rej[i].Disparity = CountDiff(PrepPic(masks[i], sources[i])).ToString();             
+                if(cam<Id)
+                {
+                    throw new IndexOutOfRangeException();
+                }
+                if (Id == 0)
+                {
+                    for (int i = 0; i < cam; i++)
+                    {
+                        rej[i].id = "front.bsm.reject" + i.ToString();
+                        rej[i].disparity = CountDiff(PrepPic(masks[i], sources[i]));
+                    }
+                }
+                else
+                {
+                    rej[Id-1].id = "front.bsm.reject" + Id.ToString();
+                    rej[Id-1].disparity = CountDiff(PrepPic(masks[Id-1], sources[Id-1]));
                 }
             }
             catch
             {
-                serv.State = "ERROR";
-                err.Code = 1;
-                err.Description = "Something went wrong";
-                resp.Error = err;
+                serv.state = "ERROR";
+                err.code = 1.ToString();
+                err.description = "Something went wrong";
+                resp.error = err;
                 answer = MakeJSON(resp);
                 return answer;
             }
 
-            resp.Service = serv;
-            resp.RejectList = rej;
-            resp.Error = err;
+            resp.service = serv;
+            resp.rejectList = rej;
+            resp.error = err;
             answer = MakeJSON(resp);
 
             return answer;
@@ -379,8 +415,8 @@ namespace RejectRecognition
                 }
             }
             CameraList[] cams = new CameraList[cam];
-            resp.CameraList = cams;
-            resp.Error = err;
+            resp.cameraList = cams;
+            resp.error = err;
             answer = MakeJSON(resp);
             return answer;
         }//FormResponse 
