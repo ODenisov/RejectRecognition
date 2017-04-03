@@ -40,6 +40,7 @@
             this.numericFPS = new System.Windows.Forms.NumericUpDown();
             this.comboCameras = new System.Windows.Forms.ComboBox();
             this.buttonSave = new System.Windows.Forms.Button();
+            this.labelPostionXY = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.cameraFeed1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericContrast)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericBrightness)).BeginInit();
@@ -53,6 +54,9 @@
             this.cameraFeed1.Size = new System.Drawing.Size(425, 260);
             this.cameraFeed1.TabIndex = 0;
             this.cameraFeed1.TabStop = false;
+            this.cameraFeed1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.cameraFeed1_MouseDown);
+            this.cameraFeed1.MouseMove += new System.Windows.Forms.MouseEventHandler(this.cameraFeed1_MouseMove);
+            this.cameraFeed1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.cameraFeed1_MouseUp);
             // 
             // snapshot1
             // 
@@ -164,11 +168,21 @@
             this.buttonSave.UseVisualStyleBackColor = true;
             this.buttonSave.Click += new System.EventHandler(this.buttonSave_Click);
             // 
+            // labelPostionXY
+            // 
+            this.labelPostionXY.AutoSize = true;
+            this.labelPostionXY.Location = new System.Drawing.Point(176, 287);
+            this.labelPostionXY.Name = "labelPostionXY";
+            this.labelPostionXY.Size = new System.Drawing.Size(35, 13);
+            this.labelPostionXY.TabIndex = 8;
+            this.labelPostionXY.Text = "label1";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(448, 486);
+            this.Controls.Add(this.labelPostionXY);
             this.Controls.Add(this.buttonSave);
             this.Controls.Add(this.comboCameras);
             this.Controls.Add(this.numericBrightness);
@@ -203,6 +217,7 @@
         private System.Windows.Forms.NumericUpDown numericFPS;
         private System.Windows.Forms.ComboBox comboCameras;
         private System.Windows.Forms.Button buttonSave;
+        private System.Windows.Forms.Label labelPostionXY;
     }
 }
 

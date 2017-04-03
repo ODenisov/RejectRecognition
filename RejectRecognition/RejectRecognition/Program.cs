@@ -22,8 +22,8 @@ namespace RejectRecognition
         static StreamWriter sw = new StreamWriter("log"+DateTime.Now.ToString("dd_mm_yy-HH_MM")+".txt");
         //consts
         static int HEIGHT = 500;
-        static int WARNINGTRH = 10;
-        static int ALERTTRH = 25;
+        static int WARNINGTRH = 15;
+        static int ALERTTRH = 35;
 
 
         class Service
@@ -84,6 +84,7 @@ namespace RejectRecognition
                 Console.WriteLine(request.QueryString.Keys.Count.ToString());
                 
                 string responseString = "";
+                int keyCount=request.QueryString.AllKeys.Length;
                 switch (request.QueryString.GetValues("cmd")[0])
                 {
                     case "make_snp":
@@ -92,9 +93,7 @@ namespace RejectRecognition
                         sw.Write("make_snp"+ DateTime.Now.ToString("(HH_mm_ss)") + ": ");
                         break;
                     case "rej_check":
-                        responseString = FormResponseCheck(ResPic, Masks, request.QueryString.GetValues("id") == null ?
-                                                                                                                "ALL" : 
-                                                                                                                request.QueryString.GetValues("id")[0]);
+                        responseString = keyCount==2? FormResponseCheck(ResPic, Masks, request.QueryString.GetValues(1)[0]): FormResponseCheck(ResPic, Masks, "ALL");
                         Console.WriteLine("rej_check: ");
                         sw.Write("rej_check: ");
                         break;
@@ -339,8 +338,7 @@ namespace RejectRecognition
             int count = sources.Length;
             string answer = @"";
             int cam = 0;
-            int Id = Convert.ToInt32(id);
-            Id = (id == "ALL" ? 0 : Id);
+            int Id = (id == "ALL" ? 0 : Convert.ToInt32(id));            
             for (int i = 0; i < count; i++)
             {
                 if ((!sources[i].IsEmpty) && (sources[i].Height < HEIGHT))
