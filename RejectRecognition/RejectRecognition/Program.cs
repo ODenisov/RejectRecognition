@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -8,9 +9,8 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 using Emgu.CV;
-using Emgu.CV.Structure;
 using Emgu.CV.CvEnum;
-
+using Emgu.CV.Structure;
 
 namespace RejectRecognition
 {
@@ -24,7 +24,7 @@ namespace RejectRecognition
         static int HEIGHT = 500;
         static int WARNINGTRH = 15;
         static int ALERTTRH = 35;
-
+        private Rectangle RealImageRect = new Rectangle();
 
         class Service
         {
@@ -220,10 +220,19 @@ namespace RejectRecognition
                 string Contrast = sr.ReadLine();
                 string Exposure = sr.ReadLine();
                 string Fps = sr.ReadLine();
+                string Xcor = sr.ReadLine();
+                string Ycor = sr.ReadLine();
+                string Height = sr.ReadLine();
+                string Width = sr.ReadLine();
                 double bright = Convert.ToDouble(Brightness.Split(' ')[1]);
                 double contrast = Convert.ToDouble(Contrast.Split(' ')[1]);
                 double expos = Convert.ToDouble(Exposure.Split(' ')[1]);
                 double fraps = Convert.ToDouble(Fps.Split(' ')[1]) == 0 ? 60 : Convert.ToDouble(Fps.Split(' ')[1]);//если фпс не меняли, ставим 60
+                int X = Convert.ToInt32(Xcor.Split(' ')[1]);
+                int Y = Convert.ToInt32(Ycor.Split(' ')[1]);
+                int height = Convert.ToInt32(Height.Split(' ')[1]);
+                int width = Convert.ToInt32(Width.Split(' ')[1]);
+
                 SetProperties(Videos[cameraNum], bright, fraps, contrast);//3 args
                 sr.Close();
                 sr.Dispose();
