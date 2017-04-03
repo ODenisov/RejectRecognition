@@ -115,7 +115,7 @@ namespace RejectRecognGUI
             text += "\nContrast " + _cameras[current_camera].GetCaptureProperty(CapProp.Contrast).ToString();
             text += "\nExposure " + _cameras[current_camera].GetCaptureProperty(CapProp.Exposure).ToString();
             text += "\nFPS " + _cameras[current_camera].GetCaptureProperty(CapProp.Fps).ToString();
-            //text += "\nX " + ;
+            text += "\nX " + RealImageRect.X.ToString() + "\nY " + RealImageRect.Y.ToString();
             sw.WriteLine(text);
             sw.Close();
             sw.Dispose();
