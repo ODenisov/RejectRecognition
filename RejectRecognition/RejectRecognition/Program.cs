@@ -19,12 +19,16 @@ namespace RejectRecognition
         static Mat CameraFeed = new Mat();
         static Mat[] Masks = new Mat[10];
         static Mat[] ResPic = new Mat[10];
+        static Rectangle[] PicRoi = new Rectangle[10];
+        static string[] machineList = { "bsm", "bsm" }; 
         static StreamWriter sw = new StreamWriter("log"+DateTime.Now.ToString("dd_mm_yy-HH_MM")+".txt");
         //consts
-        static int HEIGHT = 500;
+        static int HIGH_COUNT = 100;
+        static int MAX_HEIGHT = 500;
         static int WARNINGTRH = 15;
         static int ALERTTRH = 35;
-        private Rectangle RealImageRect = new Rectangle();
+        static double DIFF_MOD = 0;
+        static Rectangle RealImageRect = new Rectangle();
 
         class Service
         {
@@ -90,12 +94,12 @@ namespace RejectRecognition
                     case "make_snp":
                         responseString = FormResponseSnap(ResPic, Masks, request.QueryString.GetValues(1)[0]);
                         Console.WriteLine("make_snp: ");
-                        sw.Write("make_snp"+ DateTime.Now.ToString("(HH_mm_ss)") + ": ");
+                        sw.Write("make_snp"+ DateTime.Now.ToString("(HH:mm:ss)") + ": ");
                         break;
                     case "rej_check":
                         responseString = keyCount==2? FormResponseCheck(ResPic, Masks, request.QueryString.GetValues(1)[0]): FormResponseCheck(ResPic, Masks, "ALL");
                         Console.WriteLine("rej_check: ");
-                        sw.Write("rej_check: ");
+                        sw.Write("rej_check"+ DateTime.Now.ToString("(HH:mm:ss)") +": ");
                         break;
                     case "self_test":
                         responseString = FormResponseTest(ResPic, Masks);
@@ -119,9 +123,27 @@ namespace RejectRecognition
             }
             Console.WriteLine("server stoped working");
         }//Listen
-                
+
+
+        private static async Task CameraFeedTest()
+        {
+            for (int i =0;i<10000;i++)
+            {
+                await Task.Delay(17);
+                try
+                {
+                    PrepPic(Masks[0], ResPic[0]).Save("img" + i.ToString() + ".jpg");
+                }
+                catch
+                {
+                    continue;
+                }
+            }
+        }
+
         static void Main(string[] args)
         {
+            Image<Bgr,byte> temp;
             Console.WriteLine("IP adress: ");
             string adress = Console.ReadLine();
             int i = 0;
@@ -163,9 +185,11 @@ namespace RejectRecognition
                 }
             }
 
+            int counter = 0;
 
             OpenSettings(VSource);
             Task.Run(() => Listen(adress));
+            //Task.Run(() => POOP());
             while (true)
             {
                 for (i = 0; i < 10; i++)
@@ -174,11 +198,24 @@ namespace RejectRecognition
                     VSource[i].Retrieve(ResPic[i]);
                     if ((!ResPic[i].IsEmpty) && (ResPic[i].Height < 500))
                     {
-                        CvInvoke.Imshow(i.ToString(),PrepPic(Masks[i], ResPic[i]));
+                        temp = PrepPic(Masks[i], ResPic[i]).ToImage<Bgr, Byte>();
+                        temp.Draw(PicRoi[i], new Bgr(Color.Aqua), 2);
+                        CvInvoke.Imshow(i.ToString(), temp);
                         //CvInvoke.Imshow(i.ToString(), ResPic[i]);
                     }
                 }
-                
+
+                //if (counter == HIGH_COUNT)
+                //{
+                //    sw.WriteLine("rej_check" + DateTime.Now.ToString("(HH_mm_ss)") + ": " + FormResponseCheck(ResPic, Masks, "ALL"));
+                //    counter = 0;
+                //    sw.WriteLine("make_snp" + DateTime.Now.ToString("(HH:mm:ss)") + ": " + FormResponseSnap(ResPic, Masks, "ALL"));
+                //}
+                //else
+                //{
+                //    counter++;
+                //}
+
                 int c = CvInvoke.WaitKey(33);
 
                 if (c == 27)
@@ -220,19 +257,33 @@ namespace RejectRecognition
                 string Contrast = sr.ReadLine();
                 string Exposure = sr.ReadLine();
                 string Fps = sr.ReadLine();
-                string Xcor = sr.ReadLine();
-                string Ycor = sr.ReadLine();
-                string Height = sr.ReadLine();
-                string Width = sr.ReadLine();
                 double bright = Convert.ToDouble(Brightness.Split(' ')[1]);
                 double contrast = Convert.ToDouble(Contrast.Split(' ')[1]);
                 double expos = Convert.ToDouble(Exposure.Split(' ')[1]);
                 double fraps = Convert.ToDouble(Fps.Split(' ')[1]) == 0 ? 60 : Convert.ToDouble(Fps.Split(' ')[1]);//если фпс не меняли, ставим 60
-                int X = Convert.ToInt32(Xcor.Split(' ')[1]);
-                int Y = Convert.ToInt32(Ycor.Split(' ')[1]);
-                int height = Convert.ToInt32(Height.Split(' ')[1]);
-                int width = Convert.ToInt32(Width.Split(' ')[1]);
-
+                try
+                {
+                    string Xcor = sr.ReadLine();
+                    string Ycor = sr.ReadLine();
+                    string Height = sr.ReadLine();
+                    string Width = sr.ReadLine();
+                    int X = Convert.ToInt32(Xcor.Split(' ')[1]);
+                    int Y = Convert.ToInt32(Ycor.Split(' ')[1]);
+                    int height = Convert.ToInt32(Height.Split(' ')[1]);
+                    int width = Convert.ToInt32(Width.Split(' ')[1]);
+                    RealImageRect.X = X;
+                    RealImageRect.Y = Y;
+                    RealImageRect.Width = width;
+                    RealImageRect.Height = height;
+                }
+                catch
+                {
+                    RealImageRect.X = 0;
+                    RealImageRect.Y = 0;
+                    RealImageRect.Width = 0;
+                    RealImageRect.Height = 0;
+                }
+                PicRoi[cameraNum] = RealImageRect;
                 SetProperties(Videos[cameraNum], bright, fraps, contrast);//3 args
                 sr.Close();
                 sr.Dispose();
@@ -273,9 +324,13 @@ namespace RejectRecognition
             return temp;
         }//PrepPic
 
-        static string CountDiff(Mat pic)
+        static string CountDiff(Mat pic,Rectangle roi,Mat source, Mat mask)
         {
+            Mat area = new Mat(pic,roi);
             MCvScalar scalar = CvInvoke.Sum(pic);
+            MCvScalar roisub = CvInvoke.Sum(area);
+            scalar.V0 -= roisub.V0;
+            scalar.V0 += roisub.V0 * DIFF_MOD;
             double test = scalar.V0 / 25500;
             Console.WriteLine("disp = " + (test).ToString());
             sw.WriteLine("disp = " + (scalar.V0 / 25500).ToString());
@@ -284,7 +339,11 @@ namespace RejectRecognition
             else if ((scalar.V0 / 25500) < ALERTTRH)
                 return "WARNING";
             else
+            {
+                CvInvoke.Imwrite(@"error_log\source_" + DateTime.Now.ToString("(HH_mm_ss)") + ".jpg", source);
+                CvInvoke.Imwrite(@"error_log\mask_" + DateTime.Now.ToString("(HH_mm_ss)") + ".jpg", mask);
                 return "ALERT";
+            }
         }//CountDiff
 
         static string BuildReport(int CamNum, double ErrorPerc)
@@ -307,7 +366,7 @@ namespace RejectRecognition
                 {
                     for (i = 0; i < count; i++)
                     {
-                        if ((!sources[i].IsEmpty) && (sources[i].Height < HEIGHT))
+                        if ((!sources[i].IsEmpty) && (sources[i].Height < MAX_HEIGHT))
                         {
                             masks[i] =sources[i];
                             sources[i].Save("capture" + i.ToString() + ".jpg");
@@ -318,7 +377,7 @@ namespace RejectRecognition
                 else
                 {
                     i = Convert.ToInt32(id);
-                    if ((!sources[i].IsEmpty) && (sources[i].Height < HEIGHT))
+                    if ((!sources[i].IsEmpty) && (sources[i].Height < MAX_HEIGHT))
                     {
                         masks[i] = sources[i];
                         sources[i].Save("capture" + i.ToString() + ".jpg");
@@ -350,7 +409,7 @@ namespace RejectRecognition
             int Id = (id == "ALL" ? 0 : Convert.ToInt32(id));            
             for (int i = 0; i < count; i++)
             {
-                if ((!sources[i].IsEmpty) && (sources[i].Height < HEIGHT))
+                if ((!sources[i].IsEmpty) && (sources[i].Height < MAX_HEIGHT))
                 {
                     cam++;
                 }
@@ -363,6 +422,8 @@ namespace RejectRecognition
                 rej[i] = new DeviceList();
             }
             Error err = new Error();
+
+            int machineNum = 0;
 
             serv.state = "READY";
             err.code = 0.ToString();
@@ -377,21 +438,51 @@ namespace RejectRecognition
                 {
                     for (int i = 0; i < cam; i++)
                     {
-                        rej[i].id = "front.bsm.reject" + i.ToString();
-                        rej[i].disparity = CountDiff(PrepPic(masks[i], sources[i]));
+                        switch(i)
+                        {
+                            case 0:
+                            case 1:
+                                machineNum = 0;
+                                break;
+                            case 2:
+                            case 3:
+                                machineNum = 1;
+                                break;
+                            default:
+                                machineNum = 0;
+                                break;
+                           
+                        }
+                        rej[i].id = machineList[machineNum] + ".reject" + i.ToString();
+                        rej[i].disparity = CountDiff(PrepPic(masks[i], sources[i]),PicRoi[i],sources[i],masks[i]);
                     }
                 }
                 else
                 {
-                    rej[Id-1].id = "front.bsm.reject" + Id.ToString();
-                    rej[Id-1].disparity = CountDiff(PrepPic(masks[Id-1], sources[Id-1]));
+                    switch (Id-1)
+                    {
+                        case 0:
+                        case 1:
+                            machineNum = 0;
+                            break;
+                        case 2:
+                        case 3:
+                            machineNum = 1;
+                            break;
+                        default:
+                            machineNum = 0;
+                            break;
+
+                    }
+                    rej[Id-1].id = machineList[machineNum] + ".reject" + Id.ToString();
+                    rej[Id-1].disparity = CountDiff(PrepPic(masks[Id-1], sources[Id-1]),PicRoi[Id-1], sources[Id - 1], masks[Id - 1]);
                 }
             }
-            catch
+            catch (Exception e)
             {
                 serv.state = "ERROR";
                 err.code = 1.ToString();
-                err.description = "Something went wrong";
+                err.description = e.Message.ToString();
                 resp.error = err;
                 answer = MakeJSON(resp);
                 return answer;

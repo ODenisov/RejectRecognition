@@ -51,7 +51,7 @@
             // 
             this.cameraFeed1.Location = new System.Drawing.Point(12, 12);
             this.cameraFeed1.Name = "cameraFeed1";
-            this.cameraFeed1.Size = new System.Drawing.Size(425, 260);
+            this.cameraFeed1.Size = new System.Drawing.Size(640, 480);
             this.cameraFeed1.TabIndex = 0;
             this.cameraFeed1.TabStop = false;
             this.cameraFeed1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.cameraFeed1_MouseDown);
@@ -60,7 +60,7 @@
             // 
             // snapshot1
             // 
-            this.snapshot1.Location = new System.Drawing.Point(12, 278);
+            this.snapshot1.Location = new System.Drawing.Point(12, 498);
             this.snapshot1.Name = "snapshot1";
             this.snapshot1.Size = new System.Drawing.Size(75, 23);
             this.snapshot1.TabIndex = 2;
@@ -71,7 +71,7 @@
             // LabelBrightness
             // 
             this.LabelBrightness.AutoSize = true;
-            this.LabelBrightness.Location = new System.Drawing.Point(173, 325);
+            this.LabelBrightness.Location = new System.Drawing.Point(246, 501);
             this.LabelBrightness.Name = "LabelBrightness";
             this.LabelBrightness.Size = new System.Drawing.Size(50, 13);
             this.LabelBrightness.TabIndex = 4;
@@ -80,7 +80,7 @@
             // LabelFPS
             // 
             this.LabelFPS.AutoSize = true;
-            this.LabelFPS.Location = new System.Drawing.Point(186, 351);
+            this.LabelFPS.Location = new System.Drawing.Point(259, 527);
             this.LabelFPS.Name = "LabelFPS";
             this.LabelFPS.Size = new System.Drawing.Size(37, 13);
             this.LabelFPS.TabIndex = 4;
@@ -89,7 +89,7 @@
             // LabelContrast
             // 
             this.LabelContrast.AutoSize = true;
-            this.LabelContrast.Location = new System.Drawing.Point(140, 377);
+            this.LabelContrast.Location = new System.Drawing.Point(221, 555);
             this.LabelContrast.Name = "LabelContrast";
             this.LabelContrast.Size = new System.Drawing.Size(83, 13);
             this.LabelContrast.TabIndex = 4;
@@ -97,7 +97,7 @@
             // 
             // numericContrast
             // 
-            this.numericContrast.Location = new System.Drawing.Point(229, 375);
+            this.numericContrast.Location = new System.Drawing.Point(302, 553);
             this.numericContrast.Maximum = new decimal(new int[] {
             1000,
             0,
@@ -115,7 +115,7 @@
             // 
             // numericBrightness
             // 
-            this.numericBrightness.Location = new System.Drawing.Point(229, 323);
+            this.numericBrightness.Location = new System.Drawing.Point(302, 501);
             this.numericBrightness.Maximum = new decimal(new int[] {
             1000,
             0,
@@ -133,7 +133,7 @@
             // 
             // numericFPS
             // 
-            this.numericFPS.Location = new System.Drawing.Point(229, 349);
+            this.numericFPS.Location = new System.Drawing.Point(302, 527);
             this.numericFPS.Maximum = new decimal(new int[] {
             1000,
             0,
@@ -152,7 +152,7 @@
             // comboCameras
             // 
             this.comboCameras.FormattingEnabled = true;
-            this.comboCameras.Location = new System.Drawing.Point(304, 280);
+            this.comboCameras.Location = new System.Drawing.Point(527, 498);
             this.comboCameras.Name = "comboCameras";
             this.comboCameras.Size = new System.Drawing.Size(121, 21);
             this.comboCameras.TabIndex = 6;
@@ -160,7 +160,7 @@
             // 
             // buttonSave
             // 
-            this.buttonSave.Location = new System.Drawing.Point(182, 451);
+            this.buttonSave.Location = new System.Drawing.Point(12, 527);
             this.buttonSave.Name = "buttonSave";
             this.buttonSave.Size = new System.Drawing.Size(98, 23);
             this.buttonSave.TabIndex = 7;
@@ -171,17 +171,17 @@
             // labelPostionXY
             // 
             this.labelPostionXY.AutoSize = true;
-            this.labelPostionXY.Location = new System.Drawing.Point(176, 287);
+            this.labelPostionXY.Location = new System.Drawing.Point(130, 522);
             this.labelPostionXY.Name = "labelPostionXY";
-            this.labelPostionXY.Size = new System.Drawing.Size(35, 13);
+            this.labelPostionXY.Size = new System.Drawing.Size(0, 13);
             this.labelPostionXY.TabIndex = 8;
-            this.labelPostionXY.Text = "label1";
+            this.labelPostionXY.Visible = false;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(448, 486);
+            this.ClientSize = new System.Drawing.Size(660, 591);
             this.Controls.Add(this.labelPostionXY);
             this.Controls.Add(this.buttonSave);
             this.Controls.Add(this.comboCameras);
@@ -194,7 +194,7 @@
             this.Controls.Add(this.snapshot1);
             this.Controls.Add(this.cameraFeed1);
             this.Name = "Form1";
-            this.Text = "CRN";
+            this.Text = "ReconGUI";
             ((System.ComponentModel.ISupportInitialize)(this.cameraFeed1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericContrast)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericBrightness)).EndInit();

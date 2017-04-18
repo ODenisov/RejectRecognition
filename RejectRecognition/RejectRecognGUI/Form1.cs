@@ -27,6 +27,7 @@ namespace RejectRecognGUI
         private Rectangle RealImageRect = new Rectangle();
         private Brush selectionBrush = new SolidBrush(Color.FromArgb(128, 64, 64, 64));
         private int thickness = 3;
+        private bool mouseDown = false;
 
         public Form1()
         {
@@ -61,8 +62,8 @@ namespace RejectRecognGUI
 
         void Run(object sender, EventArgs e)
         {
-            //Frame = PrepPic(Mask, _cameras[current_camera].QueryFrame());
-            Frame =  _cameras[current_camera].QueryFrame();
+            Frame = PrepPic(Mask, _cameras[current_camera].QueryFrame());
+            //Frame =   _cameras[current_camera].QueryFrame();
             panno = Frame.ToImage<Bgr, byte>();
             panno.Draw(RealImageRect, new Bgr(Color.Red), thickness);
             cameraFeed1.Image = panno;
@@ -75,9 +76,12 @@ namespace RejectRecognGUI
 
             if (mask.Height == temp.Height)
             {
-                CvInvoke.AbsDiff(mask.Split()[0], temp.Split()[0], temp);
-                CvInvoke.Threshold(temp, temp, 35, 255, ThresholdType.Binary);
-                CvInvoke.Canny(temp, temp, 25, 150);
+                //CvInvoke.AbsDiff(mask.Split()[0], temp.Split()[0], temp);
+                //CvInvoke.Threshold(temp, temp, 35, 255, ThresholdType.Binary);
+                CvInvoke.CvtColor(temp, temp, Emgu.CV.CvEnum.ColorConversion.Rgb2Hsv);
+                CvInvoke.CvtColor(temp, temp, Emgu.CV.CvEnum.ColorConversion.Hsv2Rgb);
+
+                //CvInvoke.Canny(temp, temp, 25, 150);
             }
 
             return temp;
@@ -108,6 +112,14 @@ namespace RejectRecognGUI
 
         private void buttonSave_Click(object sender, EventArgs e)
         {
+            if (RealImageRect.X + RealImageRect.Width > 640)
+            {
+                RealImageRect.Width -= (RealImageRect.X + RealImageRect.Width - 640);
+            }
+            if (RealImageRect.Y + RealImageRect.Height > 480)
+            {
+                RealImageRect.Height -= (RealImageRect.Y + RealImageRect.Height - 480);
+            }
             StreamWriter sw = new StreamWriter("Settings_Camera_" + comboCameras.SelectedIndex.ToString()+".txt");
             string text = "";
             text += "---Camera " + comboCameras.SelectedIndex.ToString() + "---";
@@ -118,7 +130,7 @@ namespace RejectRecognGUI
             text += "\nX " + RealImageRect.X.ToString() + 
                     "\nY " + RealImageRect.Y.ToString() + 
                     "\nHeight "+ RealImageRect.Height.ToString() +
-                    "\nWidth" + RealImageRect.Width.ToString();
+                    "\nWidth " + RealImageRect.Width.ToString();
 
             sw.WriteLine(text);
             sw.Close();
@@ -138,6 +150,11 @@ namespace RejectRecognGUI
             refProps();
             try
             {
+                //Yes,thats the quikiest way to nulifiy Rectangle 
+                RealImageRect.X = 
+                    RealImageRect.Y = 
+                    RealImageRect.Height = 
+                    RealImageRect.Width = 0;
                 Mask = CvInvoke.Imread("capture" + current_camera.ToString() + ".jpg");
                 CvInvoke.GaussianBlur(Mask, Mask, new Size(3, 3), 1);
             }
@@ -159,8 +176,11 @@ namespace RejectRecognGUI
         {
             #region SETS COORDINATES AT INPUT IMAGE BOX
             int X0, Y0;
-            Utilities.ConvertCoordinates(cameraFeed1, out X0, out Y0, e.X, e.Y);
-            labelPostionXY.Text = "Last Position: X:" + X0 + "  Y:" + Y0;
+            if (mouseDown)
+            {
+                Utilities.ConvertCoordinates(cameraFeed1, out X0, out Y0, e.X, e.Y);
+                labelPostionXY.Text = "Last Position: X:" + X0 + "  Y:" + Y0;
+            }
 
             //Coordinates at input picture box
             if (e.Button != MouseButtons.Left)
