@@ -41,10 +41,13 @@
             this.comboCameras = new System.Windows.Forms.ComboBox();
             this.buttonSave = new System.Windows.Forms.Button();
             this.labelPostionXY = new System.Windows.Forms.Label();
+            this.polzun = new System.Windows.Forms.TrackBar();
+            this.polzunLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.cameraFeed1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericContrast)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericBrightness)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericFPS)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.polzun)).BeginInit();
             this.SuspendLayout();
             // 
             // cameraFeed1
@@ -177,11 +180,38 @@
             this.labelPostionXY.TabIndex = 8;
             this.labelPostionXY.Visible = false;
             // 
+            // polzun
+            // 
+            this.polzun.Enabled = false;
+            this.polzun.Location = new System.Drawing.Point(400, 534);
+            this.polzun.Maximum = 255;
+            this.polzun.Minimum = 1;
+            this.polzun.Name = "polzun";
+            this.polzun.Size = new System.Drawing.Size(252, 45);
+            this.polzun.TabIndex = 9;
+            this.polzun.TabStop = false;
+            this.polzun.Value = 1;
+            this.polzun.Visible = false;
+            this.polzun.ValueChanged += new System.EventHandler(this.polzun_ValueChanged);
+            // 
+            // polzunLabel
+            // 
+            this.polzunLabel.AutoSize = true;
+            this.polzunLabel.Enabled = false;
+            this.polzunLabel.Location = new System.Drawing.Point(400, 507);
+            this.polzunLabel.Name = "polzunLabel";
+            this.polzunLabel.Size = new System.Drawing.Size(24, 13);
+            this.polzunLabel.TabIndex = 10;
+            this.polzunLabel.Text = "test";
+            this.polzunLabel.Visible = false;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(660, 591);
+            this.Controls.Add(this.polzunLabel);
+            this.Controls.Add(this.polzun);
             this.Controls.Add(this.labelPostionXY);
             this.Controls.Add(this.buttonSave);
             this.Controls.Add(this.comboCameras);
@@ -199,6 +229,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.numericContrast)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericBrightness)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericFPS)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.polzun)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -218,6 +249,8 @@
         private System.Windows.Forms.ComboBox comboCameras;
         private System.Windows.Forms.Button buttonSave;
         private System.Windows.Forms.Label labelPostionXY;
+        private System.Windows.Forms.TrackBar polzun;
+        private System.Windows.Forms.Label polzunLabel;
     }
 }
 

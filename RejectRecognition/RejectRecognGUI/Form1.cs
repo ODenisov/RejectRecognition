@@ -15,6 +15,8 @@ namespace RejectRecognGUI
     {
         private Image<Bgr, byte> panno;
 
+        static int polzunValue = 1;
+
         public static VideoCapture[] _cameras = new VideoCapture[10];
         public static int current_camera = 0;
         public static Mat[] result = new Mat[10];
@@ -34,6 +36,31 @@ namespace RejectRecognGUI
             InitializeComponent();
             cameraFeed1.FunctionalMode = Emgu.CV.UI.ImageBox.FunctionalModeOption.Minimum;
             CameraMan();
+        }
+
+        static Mat changeColor(Mat source,double light)
+        {
+            Image<Hls, byte> temp = source.ToImage<Hls, byte>(); 
+            //performance boost with no usage of C# in loop
+            //byte[,,] data = temp.Data;
+            Image<Gray, byte> lum = temp[1];
+            lum._EqualizeHist();
+            temp[1] = lum;
+
+
+
+            //for (int i = 0; i < temp.Height; i++)
+            //{
+
+            //    for (int j = 0; j < temp.Width; j++)
+            //    {
+            //        data[i, j, 0] = Convert.ToByte(light);
+            //    }
+            //}
+
+            //temp.Data = data;
+
+            return temp.Mat;
         }
 
         private void CameraMan()
@@ -68,7 +95,7 @@ namespace RejectRecognGUI
             panno.Draw(RealImageRect, new Bgr(Color.Red), thickness);
             cameraFeed1.Image = panno;
         }
-
+        //В GUI PrepPic используется только программистом в целях проверки фильтров
         static Mat PrepPic(Mat mask, Mat pic)
         {
             Mat temp = new Mat();
@@ -76,12 +103,34 @@ namespace RejectRecognGUI
 
             if (mask.Height == temp.Height)
             {
+                //canny
                 //CvInvoke.AbsDiff(mask.Split()[0], temp.Split()[0], temp);
                 //CvInvoke.Threshold(temp, temp, 35, 255, ThresholdType.Binary);
-                CvInvoke.CvtColor(temp, temp, Emgu.CV.CvEnum.ColorConversion.Rgb2Hsv);
-                CvInvoke.CvtColor(temp, temp, Emgu.CV.CvEnum.ColorConversion.Hsv2Rgb);
-
                 //CvInvoke.Canny(temp, temp, 25, 150);
+
+                //lum equalization
+                //CvInvoke.CvtColor(temp, temp, Emgu.CV.CvEnum.ColorConversion.Bgr2Hls);
+                //Mat toto = new Mat();
+                //temp.CopyTo(toto);
+                //toto = changeColor(toto, polzunValue);
+                //CvInvoke.CvtColor(toto, temp, Emgu.CV.CvEnum.ColorConversion.Hls2Bgr);
+
+                Image<Gray, byte> maskGray = mask.ToImage<Gray, byte>();
+                Image<Gray, float> maskSobel = maskGray.Sobel(1, 0, 3).Add(maskGray.Sobel(0, 1, 3)).AbsDiff(new Gray(0.0));
+
+                Image<Gray, byte> sourceGray = temp.ToImage<Gray, byte>();
+                Image<Gray, float> sourceSobel = sourceGray.Sobel(1, 0, 3).Add(sourceGray.Sobel(0, 1, 3)).AbsDiff(new Gray(0.0));
+
+                CvInvoke.Subtract(sourceSobel, maskSobel, sourceSobel);
+                
+                temp = sourceSobel.Mat;
+                CvInvoke.Threshold(temp, temp, polzunValue, 255, ThresholdType.Binary);
+
+                //Image<Gray, byte> gray = temp.ToImage<Gray, byte>();
+
+                //Image <Gray, float> sobel = gray.Sobel(0, 1, 3).Add(gray.Sobel(1, 0, 3)).AbsDiff(new Gray(0.0));
+                //temp = sobel.Mat;
+
             }
 
             return temp;
@@ -235,6 +284,12 @@ namespace RejectRecognGUI
                 panno.ROI = RealImageRect;
                 cameraFeed1.Image = panno;
             }
+        }
+
+        private void polzun_ValueChanged(object sender, EventArgs e)
+        {
+            polzunValue = polzun.Value;
+            polzunLabel.Text = polzun.Value.ToString();
         }
     }
 }
