@@ -27,7 +27,7 @@ namespace RejectRecognition
         static int MAX_HEIGHT = 500;
         static int WARNINGTRH = 15;
         static int ALERTTRH = 35;
-        static double DIFF_MOD = 0;
+        static double DIFF_MOD = 0.35;
         static Rectangle RealImageRect = new Rectangle();
 
         class Service
