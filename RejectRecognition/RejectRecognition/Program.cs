@@ -21,7 +21,7 @@ namespace RejectRecognition
         static Mat[] ResPic = new Mat[10];
         static Rectangle[] PicRoi = new Rectangle[10];
         static string[] machineList = { "bsm", "bsm" }; 
-        static StreamWriter sw = new StreamWriter("log"+DateTime.Now.ToString("dd_mm_yy-HH_MM")+".txt");
+        static StreamWriter sw = new StreamWriter("log"+DateTime.Now.ToString("dd_MM_yy-HH_mm")+".txt");
         //consts
         static int HIGH_COUNT = 100;
         static int MAX_HEIGHT = 500;
@@ -185,11 +185,11 @@ namespace RejectRecognition
                 }
             }
 
-            int counter = 0;
+            int testCoounter = 0;
 
             OpenSettings(VSource);
             Task.Run(() => Listen(adress));
-            //Task.Run(() => POOP());
+            //Task.Run(() => CameraFeedTest());
             while (true)
             {
                 for (i = 0; i < 10; i++)
@@ -205,16 +205,18 @@ namespace RejectRecognition
                     }
                 }
 
-                //if (counter == HIGH_COUNT)
+                //Test 
+                //if (testCoounter == HIGH_COUNT)
                 //{
                 //    sw.WriteLine("rej_check" + DateTime.Now.ToString("(HH_mm_ss)") + ": " + FormResponseCheck(ResPic, Masks, "ALL"));
-                //    counter = 0;
+                //    testCoounter = 0;
                 //    sw.WriteLine("make_snp" + DateTime.Now.ToString("(HH:mm:ss)") + ": " + FormResponseSnap(ResPic, Masks, "ALL"));
                 //}
                 //else
                 //{
-                //    counter++;
+                //    testCoounter++;
                 //}
+                //do not touch
 
                 int c = CvInvoke.WaitKey(33);
 
@@ -316,9 +318,22 @@ namespace RejectRecognition
 
             if (mask.Height == temp.Height)
             {
-                CvInvoke.AbsDiff(mask.Split()[0], temp.Split()[0], temp);
-                CvInvoke.Threshold(temp, temp, 37, 255, ThresholdType.Binary);
-                CvInvoke.Canny(temp, temp, 25, 100);
+
+                Image<Gray, byte> maskGray = mask.ToImage<Gray, byte>();
+                Image<Gray, float> maskSobel = maskGray.Sobel(1, 0, 3).Add(maskGray.Sobel(0, 1, 3)).AbsDiff(new Gray(0.0));
+
+                Image<Gray, byte> sourceGray = temp.ToImage<Gray, byte>();
+                Image<Gray, float> sourceSobel = sourceGray.Sobel(1, 0, 3).Add(sourceGray.Sobel(0, 1, 3)).AbsDiff(new Gray(0.0));
+
+               // CvInvoke.Subtract(sourceSobel, maskSobel, sourceSobel);
+
+                temp = sourceSobel.Mat;
+
+                //CvInvoke.Threshold(temp, temp, 70, 255, ThresholdType.Binary);
+               
+            //CvInvoke.AbsDiff(mask.Split()[0], temp.Split()[0], temp);
+                //CvInvoke.Threshold(temp, temp, 37, 255, ThresholdType.Binary);
+                //CvInvoke.Canny(temp, temp, 25, 100);
             }
 
             return temp;
