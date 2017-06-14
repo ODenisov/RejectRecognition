@@ -22,13 +22,16 @@ namespace RejectRecognition
         static Rectangle[] PicRoi = new Rectangle[10];
         static string[] machineList = { "bsm", "bsm" }; 
         static StreamWriter sw = new StreamWriter("log"+DateTime.Now.ToString("dd_MM_yy-HH_mm")+".txt");
+        static Rectangle RealImageRect = new Rectangle();
         //consts
+        static int[] sobelRes = new int[2] { 0,0};
         static int HIGH_COUNT = 100;
         static int MAX_HEIGHT = 500;
         static int WARNINGTRH = 15;
         static int ALERTTRH = 35;
-        static double DIFF_MOD = 0.35;
-        static Rectangle RealImageRect = new Rectangle();
+        static int WARNINGSOBEL = 15;
+        static int ALERTSOBEL = 35;
+        static double DIFF_MOD = 1;
 
         class Service
         {
@@ -313,45 +316,86 @@ namespace RejectRecognition
                 return pic;
 
             Mat temp = new Mat();
-            //CvInvoke.GaussianBlur(pic, temp, new System.Drawing.Size(3, 3), -9);
             pic.CopyTo(temp);
 
             if (mask.Height == temp.Height)
             {
-
-                Image<Gray, byte> maskGray = mask.ToImage<Gray, byte>();
-                Image<Gray, float> maskSobel = maskGray.Sobel(1, 0, 3).Add(maskGray.Sobel(0, 1, 3)).AbsDiff(new Gray(0.0));
-
                 Image<Gray, byte> sourceGray = temp.ToImage<Gray, byte>();
-                Image<Gray, float> sourceSobel = sourceGray.Sobel(1, 0, 3).Add(sourceGray.Sobel(0, 1, 3)).AbsDiff(new Gray(0.0));
+                Image<Gray, float> sourceSobel = sourceGray.Sobel(1, 0, 1).Add(sourceGray.Sobel(0, 1, 3)).AbsDiff(new Gray(0.0));
 
-               // CvInvoke.Subtract(sourceSobel, maskSobel, sourceSobel);
+                sourceSobel.Mat.ConvertTo(temp,DepthType.Cv8U);
 
-                temp = sourceSobel.Mat;
-
-                //CvInvoke.Threshold(temp, temp, 70, 255, ThresholdType.Binary);
-               
-            //CvInvoke.AbsDiff(mask.Split()[0], temp.Split()[0], temp);
-                //CvInvoke.Threshold(temp, temp, 37, 255, ThresholdType.Binary);
-                //CvInvoke.Canny(temp, temp, 25, 100);
             }
 
             return temp;
         }//PrepPic
 
+        static Mat PrepPicCanny(Mat mask, Mat pic)
+        {
+            if (mask == null)
+                return pic;
+
+            Mat temp = new Mat();
+            pic.CopyTo(temp);
+
+            if (mask.Height == temp.Height)
+            {
+                //old algorithm         
+                CvInvoke.AbsDiff(mask.Split()[0], temp.Split()[0], temp);
+                CvInvoke.Threshold(temp, temp, 37, 255, ThresholdType.Binary);
+                CvInvoke.Canny(temp, temp, 15, 50);
+            }
+
+            return temp;
+        }//PrepPic
+
+        static double maskScalarSum(Mat mask)
+        {
+            Image<Gray, byte> maskGray = mask.ToImage<Gray, byte>();
+            Image<Gray, float> maskSobel = maskGray.Sobel(1, 0, 1).Add(maskGray.Sobel(0, 1, 3)).AbsDiff(new Gray(0.0));
+            MCvScalar scalar = CvInvoke.Sum(maskSobel);
+            return scalar.V0;
+        }
+
         static string CountDiff(Mat pic,Rectangle roi,Mat source, Mat mask)
         {
+            //Подсчет ошибки
             Mat area = new Mat(pic,roi);
             MCvScalar scalar = CvInvoke.Sum(pic);
+            //Для собеля - находим разницу
+            scalar.V0 -= maskScalarSum(mask);
+            //Подсчет и реакция
+            double diffCof = Math.Abs(scalar.V0 / 25500);
+            Console.WriteLine("disp = " + (diffCof).ToString());
+            sw.WriteLine("disp = " + (diffCof).ToString());
+            if ((diffCof) < WARNINGSOBEL)
+                return "CLEAR";
+            else if ((diffCof) < ALERTSOBEL)
+                return "WARNING";
+            else
+            {
+                CvInvoke.Imwrite(@"error_log\source_" + DateTime.Now.ToString("(HH_mm_ss)") + ".jpg", source);
+                CvInvoke.Imwrite(@"error_log\mask_" + DateTime.Now.ToString("(HH_mm_ss)") + ".jpg", mask);
+                return "ALERT";
+            }
+        }//CountDiff
+
+        static string CountDiffCanny(Mat pic, Rectangle roi, Mat source, Mat mask)
+        {
+            //Подсчет ошибки
+            Mat area = new Mat(pic, roi);
+            MCvScalar scalar = CvInvoke.Sum(pic);
             MCvScalar roisub = CvInvoke.Sum(area);
+            //Для кэнни - коэффицентим выделенную область
             scalar.V0 -= roisub.V0;
             scalar.V0 += roisub.V0 * DIFF_MOD;
-            double test = scalar.V0 / 25500;
-            Console.WriteLine("disp = " + (test).ToString());
-            sw.WriteLine("disp = " + (scalar.V0 / 25500).ToString());
-            if ((scalar.V0 / 25500) < WARNINGTRH)
+            //Подсчет и реакция
+            double diffCof = Math.Abs(scalar.V0 / 25500);
+            Console.WriteLine("disp = " + (diffCof).ToString());
+            sw.WriteLine("disp = " + (diffCof).ToString());
+            if ((diffCof) < WARNINGTRH)
                 return "CLEAR";
-            else if ((scalar.V0 / 25500) < ALERTTRH)
+            else if ((diffCof) < ALERTTRH)
                 return "WARNING";
             else
             {
@@ -469,7 +513,8 @@ namespace RejectRecognition
                            
                         }
                         rej[i].id = machineList[machineNum] + ".reject" + i.ToString();
-                        rej[i].disparity = CountDiff(PrepPic(masks[i], sources[i]),PicRoi[i],sources[i],masks[i]);
+                        rej[i].disparity = Disparity2Check(CountDiff(PrepPic(masks[i], sources[i]),PicRoi[i],sources[i],masks[i]), 
+                                                           CountDiffCanny(PrepPicCanny(masks[i], sources[i]), PicRoi[i], sources[i], masks[i]));
                     }
                 }
                 else
@@ -534,6 +579,19 @@ namespace RejectRecognition
             return answer;
         }//FormResponse 
 
+        static string Disparity2Check(string sobel,string canny)
+        {
+            if (sobel == canny)
+                return sobel;
+            else if ((sobel == "CLEAR") && (canny == "WARNING"))
+                return "CLEAR";
+            else if ((sobel == "WARNING") && (canny == "ALERT"))
+                return "ALERT";
+            else if ((sobel == "ALERT") && (canny == "CLEAR"))
+                return "WARNING";
+            else
+                return "WARNING";
+        }
 
         static string MakeJSON(ResponseForCheck JSONobj)
         {

@@ -182,7 +182,6 @@
             // 
             // polzun
             // 
-            this.polzun.Enabled = false;
             this.polzun.Location = new System.Drawing.Point(400, 534);
             this.polzun.Maximum = 255;
             this.polzun.Minimum = 1;
@@ -191,7 +190,6 @@
             this.polzun.TabIndex = 9;
             this.polzun.TabStop = false;
             this.polzun.Value = 1;
-            this.polzun.Visible = false;
             this.polzun.ValueChanged += new System.EventHandler(this.polzun_ValueChanged);
             // 
             // polzunLabel

@@ -46,9 +46,6 @@ namespace RejectRecognGUI
             Image<Gray, byte> lum = temp[1];
             lum._EqualizeHist();
             temp[1] = lum;
-
-
-
             //for (int i = 0; i < temp.Height; i++)
             //{
 
